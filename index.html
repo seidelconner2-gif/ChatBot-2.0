@@ -30,13 +30,6 @@
       --gap:18px;
       --chat-width:min(30vw,420px);
       --chat-height:min(78vh,720px);
-
-      /* Menu (neu) */
-      --menu-width:min(20vw,340px);
-      --menu-max:calc(100vw - (var(--gap) * 2));
-      --menu-item-gap:10px;
-      --menu-top-gap:10px;
-      --menu-radius:18px;
     }
 
     *{ box-sizing:border-box; }
@@ -56,58 +49,60 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
-    /* ===== START-MENU (neu) ===== */
+    /* ===== MENU OVERLAY (neu) =====
+       - Gleiche Farben wie Chat Bubbles
+       - Desktop: ~20% Breite
+       - Untereinander mit Abstand
+    */
     #cf-menu{
-      position:fixed;
+      position: fixed;
       right: var(--gap);
       bottom: var(--gap);
-      width: var(--menu-width);
-      max-width: var(--menu-max);
-      z-index: 9998;
-      display:none; /* wird per JS ein/aus */
+      width: min(20vw, 340px);
+      max-width: calc(100vw - (var(--gap) * 2));
+      z-index: 10000;
+      display: none;
     }
     #cf-menu .cf-panel{
       background: var(--chat-bg);
       border: 1px solid var(--chat-border);
-      border-radius: var(--menu-radius);
+      border-radius: 18px;
       box-shadow: var(--shadow);
+      overflow: hidden;
       padding: 14px;
-      overflow:hidden;
     }
     #cf-menu .cf-title{
-      font-size:13px;
+      margin: 0 0 10px;
       color: var(--text);
-      margin:0 0 10px;
-      line-height:1.4;
-      white-space:pre-line;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-line;
     }
     #cf-menu .cf-list{
-      display:flex;
-      flex-direction:column;
-      gap: var(--menu-item-gap);
-      margin-top: var(--menu-top-gap);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     #cf-menu .cf-item{
-      width:100%;
-      text-align:left;
+      width: 100%;
+      text-align: left;
       border: 1px solid var(--bubble-border);
       background: var(--bubble);
       color: var(--text);
       border-radius: 14px;
       padding: 14px 14px;
       font-size: 14px;
-      line-height:1.35;
-      cursor:pointer;
+      line-height: 1.35;
+      cursor: pointer;
     }
     #cf-menu .cf-item small{
       display:block;
       margin-top:6px;
       color: var(--muted);
-      font-size:12px;
-      line-height:1.3;
+      font-size: 12px;
+      line-height: 1.3;
     }
 
-    /* Mobile: Menü wird Vollfenster */
     @media (max-width: 768px){
       #cf-menu{
         right: 8px;
@@ -115,13 +110,8 @@
         width: calc(100vw - 16px);
         max-width: 100vw;
       }
-      #cf-menu .cf-panel{
-        border-radius: 14px;
-      }
+      #cf-menu .cf-panel{ border-radius: 14px; }
     }
-
-    /* Chat per default ausblenden (wir togglen) */
-    #n8n-chat { display:none; }
   </style>
 </head>
 
@@ -131,20 +121,24 @@
     <p>Termine buchen / ändern / stornieren direkt im Chat unten rechts.</p>
   </div>
 
-  <!-- START-MENU (neu) -->
+  <!-- MENU (neu) -->
   <div id="cf-menu" aria-hidden="true">
     <div class="cf-panel">
-      <p class="cf-title">👋 Willkommen bei Conar Friseur 💈\nWähle kurz, wobei ich dir helfen darf:</p>
+      <p class="cf-title">👋 Willkommen bei Conar Friseur 💈
+Wähle kurz, wobei ich dir helfen darf:</p>
+
       <div class="cf-list">
-        <button class="cf-item" data-target="info">
+        <button class="cf-item" data-mode="INFO">
           ℹ️ Infos
           <small>Öffnungszeiten, Adresse, Angebote & Salon</small>
         </button>
-        <button class="cf-item" data-target="jason">
+
+        <button class="cf-item" data-mode="JASON">
           💇‍♂️ Termin mit Jason
           <small>Termin buchen (Haarschnitt)</small>
         </button>
-        <button class="cf-item" data-target="elina">
+
+        <button class="cf-item" data-mode="ELINA">
           💇‍♀️ Termin mit Elina
           <small>Termin buchen (Haarschnitt)</small>
         </button>
@@ -155,40 +149,24 @@
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
-    const WEBHOOK_URL = "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat";
-
-    // Initial Messages je Chat
-    const INITIALS = {
-      info: `👋 Willkommen bei Conar Friseur 💈
-Ich gebe dir gerne Infos über:
-- Unsere Haarschnitte und Angebote ✂️
-- Öffnungszeiten, Adresse etc. 🕒
-- Unseren Salon 🏠`,
-      jason: `👋 Willkommen bei Conar Friseur 💈
-Du befindest dich im Chat von Jason 😊
-Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
-      elina: `👋 Willkommen bei Conar Friseur 💈
-Du befindest dich im Chat von Elina 😊
-Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
-    };
-
-    // 1) Chat erzeugen, aber ohne initialMessages (setzen wir dynamisch)
     createChat({
-      webhookUrl: WEBHOOK_URL,
+      webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
       chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [] // wichtig: leer
+      initialMessages: [] // WICHTIG: alte Initial Message entfernt
     });
 
-    // 2) CSS immer als LETZTES injizieren (wie vorher)
+    // CSS immer als LETZTES injizieren (damit es n8n sicher überschreibt)
     const css = `
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
+    /* Zeilenumbrüche in Messages wirklich anzeigen */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message *{
       white-space: pre-line !important;
     }
 
+    /* Wrapper Position */
     #n8n-chat .chat-window-wrapper{
       position: fixed !important;
       right: var(--gap) !important;
@@ -197,6 +175,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       z-index: 9999 !important;
     }
 
+    /* Window */
     #n8n-chat .chat-window{
       width: var(--chat-width) !important;
       height: var(--chat-height) !important;
@@ -210,8 +189,10 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       color: var(--text) !important;
     }
 
+    /* Header aus */
     #n8n-chat .chat-header{ display:none !important; }
 
+    /* Komplett dunkler Hintergrund im Chat */
     #n8n-chat main.chat-layout.chat-wrapper,
     #n8n-chat .chat-layout,
     #n8n-chat .chat-wrapper,
@@ -224,6 +205,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       color: var(--text) !important;
     }
 
+    /* Bubbles: beide hellgrau */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message--bot,
     #n8n-chat .chat-message--user{
@@ -236,6 +218,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       line-height: 1.45 !important;
     }
 
+    /* Input */
     #n8n-chat .chat-input{
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
@@ -253,6 +236,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       color: var(--muted) !important;
     }
 
+    /* Send Button */
     #n8n-chat .chat-input-send-button{
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
@@ -264,6 +248,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       stroke: #fff !important;
     }
 
+    /* Floating Button: Barber Icon */
     #n8n-chat .chat-window-toggle{
       width: 56px !important;
       height: 56px !important;
@@ -275,11 +260,13 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       color: #fff !important;
     }
 
+    /* Standard-Icon ausblenden */
     #n8n-chat .chat-window-toggle svg,
     #n8n-chat .chat-window-toggle img{
       display:none !important;
     }
 
+    /* 💈 reinrendern */
     #n8n-chat .chat-window-toggle::after{
       content:"💈";
       position:absolute;
@@ -290,6 +277,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
       line-height:1;
     }
 
+    /* ===== MOBILE CHAT ===== */
     @media (max-width: 768px){
       #n8n-chat .chat-window-wrapper{
         right: 8px !important;
@@ -315,7 +303,7 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
     style.textContent = css;
     document.head.appendChild(style);
 
-    // Placeholder sicher setzen
+    // Placeholder sicher setzen (falls Option ignoriert wird)
     const setPlaceholder = () => {
       const el = document.querySelector('#n8n-chat textarea, #n8n-chat input[type="text"]');
       if (el) el.setAttribute("placeholder", "Nachricht schreiben…");
@@ -326,81 +314,54 @@ Ich helfe dir gerne dabei, einen Termin zu buchen 📆`,
     setTimeout(setPlaceholder, 800);
 
     // ===== MENU LOGIK (neu) =====
-    const menuEl = document.getElementById("cf-menu");
+    const menu = document.getElementById("cf-menu");
+    const showMenu = () => { menu.style.display = "block"; menu.setAttribute("aria-hidden","false"); };
+    const hideMenu = () => { menu.style.display = "none";  menu.setAttribute("aria-hidden","true");  };
 
-    const showMenu = () => {
-      menuEl.style.display = "block";
-      menuEl.setAttribute("aria-hidden", "false");
-    };
-    const hideMenu = () => {
-      menuEl.style.display = "none";
-      menuEl.setAttribute("aria-hidden", "true");
-    };
-
-    // n8n Chat Toggle Button abfangen: statt Chat öffnen -> Menü öffnen
+    // Toggle Click -> Menü öffnen (ohne Chat direkt zu verändern)
     const bindToggle = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       if (!toggle) return false;
 
-      // Default-Click unterbinden + Menü öffnen
-      toggle.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const chatVisible = document.getElementById("n8n-chat").style.display !== "none";
-        if (!chatVisible) showMenu();
-      }, true);
+      toggle.addEventListener("click", () => {
+        // Wenn Chat bereits offen ist, Menü nicht drüberlegen
+        const windowEl = document.querySelector("#n8n-chat .chat-window");
+        const isOpen = windowEl && windowEl.offsetParent !== null;
+        if (!isOpen) showMenu();
+      });
 
       return true;
     };
 
-    // Warten bis Toggle existiert
-    const waitToggle = new MutationObserver(() => {
-      if (bindToggle()) waitToggle.disconnect();
+    const obs = new MutationObserver(() => {
+      if (bindToggle()) obs.disconnect();
     });
-    waitToggle.observe(document.documentElement, { childList:true, subtree:true });
+    obs.observe(document.documentElement, { childList:true, subtree:true });
 
-    // Initial Message in UI "simulieren":
-    // Wir senden eine erste Nachricht an n8n: MODE:<...>
-    // => n8n antwortet dann mit Initial-Text (im Workflow).
-    // Zusätzlich senden wir hier eine lokale "erste Bot-Nachricht" NICHT,
-    // weil n8n-chat keine offizielle API dafür hat. Das wird im Workflow gelöst.
-
-    const openChatAndSetMode = async (mode) => {
-      hideMenu();
-
-      // Chat sichtbar machen
-      const chatRoot = document.getElementById("n8n-chat");
-      chatRoot.style.display = "block";
-
-      // Chat Window öffnen (simulate toggle click)
-      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
-      if (toggle) {
-        // Temporär: echter click, damit Window aufgeht
-        toggle.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
-      }
-
-      // Sende MODE Nachricht an n8n (damit Workflow mode speichern kann und Initial zurückgibt)
-      // n8n chat widget sendet selbst; wir "tippen" das in das Inputfeld und triggern send.
-      const textarea = document.querySelector('#n8n-chat textarea');
-      const sendBtn = document.querySelector('#n8n-chat .chat-input-send-button');
-
-      if (textarea && sendBtn) {
-        textarea.value = `MODE:${mode.toUpperCase()}`;
-        textarea.dispatchEvent(new Event("input", { bubbles: true }));
-        sendBtn.click();
-      }
-    };
-
-    // Menü Buttons
-    menuEl.querySelectorAll("[data-target]").forEach(btn => {
+    // Menü-Auswahl -> MODE Nachricht senden (n8n Workflow antwortet dann mit passender Begrüßung)
+    menu.querySelectorAll("button[data-mode]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const mode = btn.getAttribute("data-target");
-        openChatAndSetMode(mode);
+        const mode = btn.getAttribute("data-mode");
+        hideMenu();
+
+        const textarea = document.querySelector("#n8n-chat textarea");
+        const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
+
+        if (textarea && sendBtn) {
+          textarea.value = `MODE:${mode}`;
+          textarea.dispatchEvent(new Event("input", { bubbles:true }));
+          sendBtn.click();
+        }
       });
     });
 
-    // Optional: wenn Seite lädt, Chat unsichtbar lassen, aber Toggle bleibt sichtbar.
-    // Menü öffnet sich erst beim Klick auf Toggle.
+    // Klick außerhalb -> Menü schließen
+    document.addEventListener("click", (e) => {
+      if (menu.style.display !== "block") return;
+      const inside = menu.contains(e.target);
+      const isToggle = !!e.target.closest?.("#n8n-chat .chat-window-toggle");
+      if (!inside && !isToggle) hideMenu();
+    });
   </script>
 </body>
 </html>
