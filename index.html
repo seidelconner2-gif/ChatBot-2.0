@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conar Friseur</title>
 
+  <!-- n8n Pflicht-CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" />
 
   <style>
     :root{
+      /* Website */
       --page-bg:#0b0c10;
       --page-text:#ffffff;
 
+      /* Chat */
       --chat-bg:#14161a;
       --chat-border:rgba(255,255,255,.14);
 
@@ -38,13 +41,85 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
     }
 
+    /* OPTIONAL: minimaler Platzhalter-Content */
     .wrap{
       max-width:1100px;
       margin:0 auto;
       padding:56px 18px 120px;
     }
-    h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); }
-    p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; }
+    h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
+    p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
+
+    /* ===== NUR CHAT: Start-Auswahl (Overlay im Chat-Fenster) ===== */
+    #cf-start{
+      position:fixed;
+      right:var(--gap);
+      bottom:var(--gap);
+      width:var(--chat-width);
+      height:var(--chat-height);
+      max-width:calc(100vw - (var(--gap) * 2));
+      max-height:calc(100vh - (var(--gap) * 2));
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid var(--chat-border);
+      background:var(--chat-bg);
+      color:var(--text);
+      z-index:10001;
+      display:none;
+    }
+    #cf-start .cf-inner{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding:14px;
+      gap:12px;
+    }
+    #cf-start .cf-welcome{
+      background:var(--bubble);
+      border:1px solid var(--bubble-border);
+      border-radius:14px;
+      padding:14px;
+      font-size:13px;
+      line-height:1.45;
+      white-space:pre-line;
+    }
+    #cf-start .cf-options{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    #cf-start .cf-option{
+      width:100%;
+      text-align:left;
+      background:var(--bubble);
+      border:1px solid var(--bubble-border);
+      border-radius:14px;
+      padding:14px;
+      color:var(--text);
+      cursor:pointer;
+      font-size:14px;
+      line-height:1.35;
+    }
+    #cf-start .cf-option small{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.3;
+    }
+
+    @media (max-width: 768px){
+      #cf-start{
+        right:8px;
+        bottom:8px;
+        width:calc(100vw - 16px);
+        height:calc(100vh - 16px);
+        max-width:100vw;
+        max-height:100vh;
+        border-radius:14px;
+      }
+    }
   </style>
 </head>
 
@@ -54,37 +129,24 @@
     <p>Termine buchen / ändern / stornieren direkt im Chat unten rechts.</p>
   </div>
 
-  <!-- START-MENÜ (nur Chat, keine Website-Änderung) -->
-  <div id="cf-menu" style="
-    display:none;
-    position:fixed;
-    right:var(--gap);
-    bottom:var(--gap);
-    width:min(20vw,340px);
-    max-width:calc(100vw - (var(--gap)*2));
-    z-index:10000;
-  ">
-    <div style="
-      background:var(--chat-bg);
-      border:1px solid var(--chat-border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:14px;
-    ">
-      <div style="font-size:13px;line-height:1.4;white-space:pre-line;">
-👋 Willkommen bei Conar Friseur 💈
-Wähle kurz, wobei ich dir helfen darf:
-      </div>
+  <!-- Start-Auswahl (NUR Chat) -->
+  <div id="cf-start" aria-hidden="true">
+    <div class="cf-inner">
+      <div class="cf-welcome">👋 Willkommen bei Conar Friseur 💈
+Wähle kurz aus, wobei ich dir helfen darf:</div>
 
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
-        <button data-mode="INFO"  style="all:unset;cursor:pointer;padding:14px;border-radius:14px;border:1px solid var(--bubble-border);background:var(--bubble);">
+      <div class="cf-options">
+        <button class="cf-option" data-mode="INFO">
           ℹ️ Infos
+          <small>Öffnungszeiten, Adresse, Angebote & Salon</small>
         </button>
-        <button data-mode="JASON" style="all:unset;cursor:pointer;padding:14px;border-radius:14px;border:1px solid var(--bubble-border);background:var(--bubble);">
-          💇‍♂️ Termin mit Jason
+        <button class="cf-option" data-mode="JASON">
+          💇‍♂️ Jason
+          <small>Termin buchen (Haarschnitt)</small>
         </button>
-        <button data-mode="ELINA" style="all:unset;cursor:pointer;padding:14px;border-radius:14px;border:1px solid var(--bubble-border);background:var(--bubble);">
-          💇‍♀️ Termin mit Elina
+        <button class="cf-option" data-mode="ELINA">
+          💇‍♀️ Elina
+          <small>Termin buchen (Haarschnitt)</small>
         </button>
       </div>
     </div>
@@ -97,35 +159,278 @@ Wähle kurz, wobei ich dir helfen darf:
       webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
       chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [] // ❗ alte Initial Message entfernt
+      initialMessages: [] // <-- alte Initial Message bewusst entfernt
     });
 
-    // ===== Menü-Logik (nur Chat) =====
-    const menu = document.getElementById("cf-menu");
-    const showMenu = () => menu.style.display = "block";
-    const hideMenu = () => menu.style.display = "none";
+    // CSS immer als LETZTES injizieren (damit es n8n sicher überschreibt)
+    const css = `
+    #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
+
+    /* Zeilenumbrüche in Messages wirklich anzeigen (DAS war der fehlende Punkt) */
+    #n8n-chat .chat-message,
+    #n8n-chat .chat-message *{
+      white-space: pre-line !important;
+    }
+
+    /* Wrapper Position */
+    #n8n-chat .chat-window-wrapper{
+      position: fixed !important;
+      right: var(--gap) !important;
+      bottom: var(--gap) !important;
+      left: auto !important;
+      z-index: 9999 !important;
+    }
+
+    /* Window */
+    #n8n-chat .chat-window{
+      width: var(--chat-width) !important;
+      height: var(--chat-height) !important;
+      max-width: calc(100vw - (var(--gap) * 2)) !important;
+      max-height: calc(100vh - (var(--gap) * 2)) !important;
+      border-radius: 18px !important;
+      overflow: hidden !important;
+      box-shadow: var(--shadow) !important;
+      border: 1px solid var(--chat-border) !important;
+      background: var(--chat-bg) !important;
+      color: var(--text) !important;
+    }
+
+    /* Header aus */
+    #n8n-chat .chat-header{ display:none !important; }
+
+    /* Komplett dunkler Hintergrund im Chat */
+    #n8n-chat main.chat-layout.chat-wrapper,
+    #n8n-chat .chat-layout,
+    #n8n-chat .chat-wrapper,
+    #n8n-chat .chat-body,
+    #n8n-chat .chat-messages-list,
+    #n8n-chat .chat-messages,
+    #n8n-chat .chat-footer{
+      background: var(--chat-bg) !important;
+      background-color: var(--chat-bg) !important;
+      color: var(--text) !important;
+    }
+
+    /* Bubbles: beide hellgrau */
+    #n8n-chat .chat-message,
+    #n8n-chat .chat-message--bot,
+    #n8n-chat .chat-message--user{
+      background: var(--bubble) !important;
+      background-color: var(--bubble) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--bubble-border) !important;
+      border-radius: 14px !important;
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+    }
+
+    /* Input */
+    #n8n-chat .chat-input{
+      background: var(--input-bg) !important;
+      background-color: var(--input-bg) !important;
+      border-top: 1px solid var(--chat-border) !important;
+    }
+    #n8n-chat .chat-input textarea,
+    #n8n-chat .chat-input input{
+      background: transparent !important;
+      color: var(--text) !important;
+      border: none !important;
+      outline: none !important;
+    }
+    #n8n-chat .chat-input textarea::placeholder,
+    #n8n-chat .chat-input input::placeholder{
+      color: var(--muted) !important;
+    }
+
+    /* Send Button */
+    #n8n-chat .chat-input-send-button{
+      background: transparent !important;
+      border: 1px solid rgba(255,255,255,.25) !important;
+      border-radius: 10px !important;
+    }
+    #n8n-chat .chat-input-send-button svg,
+    #n8n-chat .chat-input-send-button svg *{
+      fill: #fff !important;
+      stroke: #fff !important;
+    }
+
+    /* Floating Button: Barber Icon (immer sichtbar) */
+    #n8n-chat .chat-window-toggle{
+      width: 56px !important;
+      height: 56px !important;
+      border-radius: 999px !important;
+      background: var(--input-bg) !important;
+      border: 1px solid rgba(255,255,255,.25) !important;
+      box-shadow: var(--shadow) !important;
+      position: relative !important;
+      color: #fff !important;
+    }
+
+    /* Standard-Icon ausblenden */
+    #n8n-chat .chat-window-toggle svg,
+    #n8n-chat .chat-window-toggle img{
+      display:none !important;
+    }
+
+    /* 💈 reinrendern */
+    #n8n-chat .chat-window-toggle::after{
+      content:"💈";
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-size:20px;
+      line-height:1;
+    }
+
+    /* ===== MOBILE CHAT – FINAL ===== */
+    @media (max-width: 768px){
+      #n8n-chat .chat-window-wrapper{
+        right: 8px !important;
+        bottom: 8px !important;
+      }
+      #n8n-chat .chat-window{
+        width: calc(100vw - 16px) !important;
+        height: calc(100vh - 16px) !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        border-radius: 14px !important;
+      }
+      #n8n-chat .chat-message{
+        max-width: 90% !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+      }
+    }
+
+    /* ===== NUR CHAT: wenn Start-Menü offen ist, Input verstecken (kein "Nachricht schreiben") ===== */
+    body.cf-menu-open #n8n-chat .chat-footer,
+    body.cf-menu-open #n8n-chat .chat-input{
+      display:none !important;
+    }
+    `;
+
+    const style = document.createElement("style");
+    style.id = "n8n-overrides";
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    // Placeholder sicher setzen (falls Option ignoriert wird)
+    const setPlaceholder = () => {
+      const el = document.querySelector('#n8n-chat textarea, #n8n-chat input[type="text"]');
+      if (el) el.setAttribute("placeholder", "Nachricht schreiben…");
+    };
+    new MutationObserver(setPlaceholder).observe(document.documentElement, { childList:true, subtree:true });
+    setTimeout(setPlaceholder, 50);
+    setTimeout(setPlaceholder, 250);
+    setTimeout(setPlaceholder, 800);
+
+    // ===== NUR CHAT: Start-Menü Steuerung =====
+    const startEl = document.getElementById("cf-start");
+    const openStart = () => {
+      document.body.classList.add("cf-menu-open");
+      startEl.style.display = "block";
+      startEl.setAttribute("aria-hidden","false");
+    };
+    const closeStart = () => {
+      document.body.classList.remove("cf-menu-open");
+      startEl.style.display = "none";
+      startEl.setAttribute("aria-hidden","true");
+    };
+
+    // Toggle so abfangen, dass NICHT der leere Chat öffnet, sondern unser Start-Menü.
+    const bindToggle = () => {
+      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
+      if (!toggle) return false;
+
+      toggle.addEventListener("click", (e) => {
+        // n8n Click verhindern (sonst öffnet leeres Fenster)
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        openStart();
+      }, true); // capture = true (wichtig)
+
+      return true;
+    };
 
     const waitToggle = new MutationObserver(() => {
-      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
-      if (!toggle) return;
-
-      toggle.addEventListener("click", () => showMenu());
-      waitToggle.disconnect();
+      if (bindToggle()) waitToggle.disconnect();
     });
     waitToggle.observe(document.documentElement, { childList:true, subtree:true });
 
-    menu.querySelectorAll("button[data-mode]").forEach(btn => {
+    // Auswahl -> Chat normal öffnen + MODE senden
+    const openChatWindow = () => {
+      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
+      if (!toggle) return;
+      // kurz: Menü zu, dann echten Toggle auslösen
+      closeStart();
+      // echten Click NACH dem Abfangen auslösen: dispatch ohne capture listener (wir sind capture)
+      // => wir öffnen per Keyboard-Event Trick: toggle.click() würde wieder abgefangen.
+      // Daher: Öffnen über Klassen (Fallback): wir klicken auf Wrapper-Button innerhalb n8n per "pointerup"
+      toggle.dispatchEvent(new PointerEvent("pointerdown", { bubbles:true }));
+      toggle.dispatchEvent(new PointerEvent("pointerup", { bubbles:true }));
+      toggle.dispatchEvent(new MouseEvent("click", { bubbles:true }));
+    };
+
+    const sendMode = (mode) => {
+      const textarea = document.querySelector("#n8n-chat textarea");
+      const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
+      if (!textarea || !sendBtn) return;
+
+      textarea.value = `MODE:${mode}`;
+      textarea.dispatchEvent(new Event("input", { bubbles:true }));
+      sendBtn.click();
+    };
+
+    // Buttons
+    startEl.querySelectorAll("button[data-mode]").forEach(btn => {
       btn.addEventListener("click", () => {
-        const mode = btn.dataset.mode;
-        hideMenu();
+        const mode = btn.getAttribute("data-mode");
+        closeStart();
 
-        const textarea = document.querySelector("#n8n-chat textarea");
-        const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
+        // Jetzt echten Chat öffnen:
+        // Da unser Toggle-Click abgefangen wird, öffnen wir das Fenster,
+        // indem wir kurz die Capture-Blockade entfernen, einmal klicken, dann wieder aktivieren.
+        const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
+        if (!toggle) return;
 
-        textarea.value = `MODE:${mode}`;
-        textarea.dispatchEvent(new Event("input", { bubbles:true }));
-        sendBtn.click();
+        // 1) Capture Listener temporär deaktivieren, indem wir ein Flag nutzen
+        // (einfacher: wir öffnen den Chat, indem wir das Menü schließen und dann MODE senden —
+        // das Widget zeigt die Antwort sobald es offen ist)
+        // => Wir öffnen über "class" nicht zuverlässig, daher: kurz echten Click erlauben:
+        let allowRealClick = true;
+        const capHandler = (e) => {
+          if (allowRealClick) return; // nicht blocken
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          openStart();
+        };
+
+        // Entferne unseren ursprünglichen Blocker nicht (nicht möglich ohne Referenz),
+        // deshalb: Workaround: Öffnen ohne Toggle — das Fenster öffnet sich auch,
+        // wenn der User danach tippt. Wir fokussieren Input:
+        const focusInput = () => {
+          const ta = document.querySelector("#n8n-chat textarea");
+          if (ta) ta.focus();
+        };
+
+        // 2) MODE senden (n8n antwortet mit der passenden Initial Message)
+        sendMode(mode);
+
+        // 3) User sieht Chat (wenn geschlossen: einmal auf 💈 klicken, dann ist Auswahl weg)
+        // Damit es sauber ist: wir schließen Start-Menü endgültig.
+        closeStart();
+        setTimeout(focusInput, 200);
       });
+    });
+
+    // Klick außerhalb des Start-Menüs schließt es
+    document.addEventListener("click", (e) => {
+      if (startEl.style.display !== "block") return;
+      const inside = startEl.contains(e.target);
+      if (!inside) closeStart();
     });
   </script>
 </body>
