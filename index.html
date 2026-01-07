@@ -34,9 +34,6 @@
 
     *{ box-sizing:border-box; }
     body{
-      <div style="position:fixed;top:10px;left:10px;z-index:999999;background:#ff0;color:#000;padding:6px 10px;font-weight:700">
-  VERSION V2
-</div>
       margin:0;
       min-height:100vh;
       background:var(--page-bg);
@@ -44,6 +41,7 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
     }
 
+    /* OPTIONAL: minimaler Platzhalter-Content */
     .wrap{
       max-width:1100px;
       margin:0 auto;
@@ -51,70 +49,6 @@
     }
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
-
-    /* ===== MENU OVERLAY (neu) =====
-       - Gleiche Farben wie Chat Bubbles
-       - Desktop: ~20% Breite
-       - Untereinander mit Abstand
-    */
-    #cf-menu{
-      position: fixed;
-      right: var(--gap);
-      bottom: var(--gap);
-      width: min(20vw, 340px);
-      max-width: calc(100vw - (var(--gap) * 2));
-      z-index: 10000;
-      display: none;
-    }
-    #cf-menu .cf-panel{
-      background: var(--chat-bg);
-      border: 1px solid var(--chat-border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      padding: 14px;
-    }
-    #cf-menu .cf-title{
-      margin: 0 0 10px;
-      color: var(--text);
-      font-size: 13px;
-      line-height: 1.4;
-      white-space: pre-line;
-    }
-    #cf-menu .cf-list{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    #cf-menu .cf-item{
-      width: 100%;
-      text-align: left;
-      border: 1px solid var(--bubble-border);
-      background: var(--bubble);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 14px;
-      line-height: 1.35;
-      cursor: pointer;
-    }
-    #cf-menu .cf-item small{
-      display:block;
-      margin-top:6px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.3;
-    }
-
-    @media (max-width: 768px){
-      #cf-menu{
-        right: 8px;
-        bottom: 8px;
-        width: calc(100vw - 16px);
-        max-width: 100vw;
-      }
-      #cf-menu .cf-panel{ border-radius: 14px; }
-    }
   </style>
 </head>
 
@@ -124,31 +58,6 @@
     <p>Termine buchen / ändern / stornieren direkt im Chat unten rechts.</p>
   </div>
 
-  <!-- MENU (neu) -->
-  <div id="cf-menu" aria-hidden="true">
-    <div class="cf-panel">
-      <p class="cf-title">👋 Willkommen bei Conar Friseur 💈
-Wähle kurz, wobei ich dir helfen darf:</p>
-
-      <div class="cf-list">
-        <button class="cf-item" data-mode="INFO">
-          ℹ️ Infos
-          <small>Öffnungszeiten, Adresse, Angebote & Salon</small>
-        </button>
-
-        <button class="cf-item" data-mode="JASON">
-          💇‍♂️ Termin mit Jason
-          <small>Termin buchen (Haarschnitt)</small>
-        </button>
-
-        <button class="cf-item" data-mode="ELINA">
-          💇‍♀️ Termin mit Elina
-          <small>Termin buchen (Haarschnitt)</small>
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
@@ -156,14 +65,23 @@ Wähle kurz, wobei ich dir helfen darf:</p>
       webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
       chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [] // WICHTIG: alte Initial Message entfernt
+      initialMessages: [
+`👋 Willkommen bei Conar Friseur 💈
+Schön, dass du da bist 😊
+Ich helfe dir gerne weiter – ganz entspannt und ohne Stress.
+Du kannst mich zum Beispiel fragen:
+1. nach unseren Leistungen und Preisen ✂️
+2. nach Öffnungszeiten, Adresse oder dem Team 🕒
+3. oder wenn du einen Termin buchen, ändern oder stornieren möchtest 📅
+Schreib einfach, wobei ich dir helfen darf 🤗`
+      ]
     });
 
     // CSS immer als LETZTES injizieren (damit es n8n sicher überschreibt)
     const css = `
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
-    /* Zeilenumbrüche in Messages wirklich anzeigen */
+    /* Zeilenumbrüche in Messages wirklich anzeigen (DAS war der fehlende Punkt) */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message *{
       white-space: pre-line !important;
@@ -251,7 +169,7 @@ Wähle kurz, wobei ich dir helfen darf:</p>
       stroke: #fff !important;
     }
 
-    /* Floating Button: Barber Icon */
+    /* Floating Button: Barber Icon (immer sichtbar) */
     #n8n-chat .chat-window-toggle{
       width: 56px !important;
       height: 56px !important;
@@ -280,7 +198,7 @@ Wähle kurz, wobei ich dir helfen darf:</p>
       line-height:1;
     }
 
-    /* ===== MOBILE CHAT ===== */
+    /* ===== MOBILE CHAT – FINAL ===== */
     @media (max-width: 768px){
       #n8n-chat .chat-window-wrapper{
         right: 8px !important;
@@ -315,56 +233,6 @@ Wähle kurz, wobei ich dir helfen darf:</p>
     setTimeout(setPlaceholder, 50);
     setTimeout(setPlaceholder, 250);
     setTimeout(setPlaceholder, 800);
-
-    // ===== MENU LOGIK (neu) =====
-    const menu = document.getElementById("cf-menu");
-    const showMenu = () => { menu.style.display = "block"; menu.setAttribute("aria-hidden","false"); };
-    const hideMenu = () => { menu.style.display = "none";  menu.setAttribute("aria-hidden","true");  };
-
-    // Toggle Click -> Menü öffnen (ohne Chat direkt zu verändern)
-    const bindToggle = () => {
-      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
-      if (!toggle) return false;
-
-      toggle.addEventListener("click", () => {
-        // Wenn Chat bereits offen ist, Menü nicht drüberlegen
-        const windowEl = document.querySelector("#n8n-chat .chat-window");
-        const isOpen = windowEl && windowEl.offsetParent !== null;
-        if (!isOpen) showMenu();
-      });
-
-      return true;
-    };
-
-    const obs = new MutationObserver(() => {
-      if (bindToggle()) obs.disconnect();
-    });
-    obs.observe(document.documentElement, { childList:true, subtree:true });
-
-    // Menü-Auswahl -> MODE Nachricht senden (n8n Workflow antwortet dann mit passender Begrüßung)
-    menu.querySelectorAll("button[data-mode]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const mode = btn.getAttribute("data-mode");
-        hideMenu();
-
-        const textarea = document.querySelector("#n8n-chat textarea");
-        const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
-
-        if (textarea && sendBtn) {
-          textarea.value = `MODE:${mode}`;
-          textarea.dispatchEvent(new Event("input", { bubbles:true }));
-          sendBtn.click();
-        }
-      });
-    });
-
-    // Klick außerhalb -> Menü schließen
-    document.addEventListener("click", (e) => {
-      if (menu.style.display !== "block") return;
-      const inside = menu.contains(e.target);
-      const isToggle = !!e.target.closest?.("#n8n-chat .chat-window-toggle");
-      if (!inside && !isToggle) hideMenu();
-    });
   </script>
 </body>
 </html>
