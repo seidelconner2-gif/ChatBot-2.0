@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conar Friseur</title>
 
-  <!-- n8n Pflicht-CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" />
+  <!-- n8n Pflicht-CSS (Cache-Buster, damit GitHub Pages/Safari sicher updatet) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css?v=9" />
 
   <style>
     :root{
@@ -41,7 +41,6 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
     }
 
-    /* OPTIONAL: minimaler Platzhalter-Content */
     .wrap{
       max-width:1100px;
       margin:0 auto;
@@ -50,7 +49,7 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
-    /* ===== NUR CHAT: Start-Auswahl Overlay ===== */
+    /* ===== START-ANSICHT (Overlay im Chat-Fenster) ===== */
     #cf-start{
       position: fixed;
       right: var(--gap);
@@ -67,19 +66,18 @@
       color: var(--text);
       z-index: 10001;
       display: none;
+      pointer-events: auto;
     }
-
     #cf-start .inner{
       height:100%;
       display:flex;
       flex-direction:column;
       padding:18px 16px;
       gap:14px;
-      align-items:center; /* zentriert */
-      justify-content:flex-start;
+      align-items:center;
     }
 
-    /* Top-Text: KEINE Bubble, zentriert, weiß */
+    /* Nachricht oben: KEINE Bubble, zentriert, weiß */
     #cf-start .headline{
       width:100%;
       text-align:center;
@@ -89,19 +87,16 @@
       white-space:pre-line;
       padding:6px 6px 2px;
     }
-    #cf-start .headline .muted{
-      color: var(--muted);
-    }
+    #cf-start .headline .muted{ color:var(--muted); }
 
-    /* Auswahl-Bubbles: zentriert + größer (je ~20% Höhe) */
+    /* 3 Auswahlflächen: Bubbles, zentriert, je ~20% der Höhe */
     #cf-start .opts{
       width:100%;
       flex:1;
       display:flex;
       flex-direction:column;
       gap:12px;
-      justify-content:flex-start;
-      align-items:center; /* zentriert */
+      align-items:center;
     }
     #cf-start .opt{
       flex: 0 0 20%;
@@ -154,7 +149,7 @@
       <div class="headline">👋 Willkommen bei Conar Friseur 💈
 <span class="muted">Wähle kurz aus, wobei ich dir helfen darf.</span>
 
-<span class="muted">Du willst einen Termin buchen? Dann klicke auf Jason oder Elina. 📆</span></div>
+<span class="muted">Du willst Termine buchen? Dann klicke auf Jason oder Elina. 📆</span></div>
 
       <div class="opts">
         <button class="opt" data-mode="INFO">
@@ -176,9 +171,9 @@
   </div>
 
   <script type="module">
-    import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
+    import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js?v=9";
 
-    // WICHTIG: Keine Initial-Bubble im Chat (deine Start-Info ist oben im Overlay)
+    // === 1) Chat erzeugen (Layout bleibt gleich, keine Initial-Bubble im Chat) ===
     createChat({
       webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
@@ -186,167 +181,176 @@
       initialMessages: []
     });
 
-    // ===== Deine ORIGINAL Overrides (1:1) + 2 kleine Ergänzungen =====
-    // - "Powered by n8n" ausblenden
-    // - wenn Start-Menü offen: Input ausblenden
+    // === 2) ORIGINAL-Overrides 1:1 (nur Branding raus + Menu-open input aus) ===
     const css = `
-    #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
+#n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
-    #n8n-chat .chat-message,
-    #n8n-chat .chat-message *{
-      white-space: pre-line !important;
-    }
+/* Zeilenumbrüche */
+#n8n-chat .chat-message,
+#n8n-chat .chat-message *{
+  white-space: pre-line !important;
+}
 
-    #n8n-chat .chat-window-wrapper{
-      position: fixed !important;
-      right: var(--gap) !important;
-      bottom: var(--gap) !important;
-      left: auto !important;
-      z-index: 9999 !important;
-    }
+/* Wrapper Position */
+#n8n-chat .chat-window-wrapper{
+  position: fixed !important;
+  right: var(--gap) !important;
+  bottom: var(--gap) !important;
+  left: auto !important;
+  z-index: 9999 !important;
+}
 
-    #n8n-chat .chat-window{
-      width: var(--chat-width) !important;
-      height: var(--chat-height) !important;
-      max-width: calc(100vw - (var(--gap) * 2)) !important;
-      max-height: calc(100vh - (var(--gap) * 2)) !important;
-      border-radius: 18px !important;
-      overflow: hidden !important;
-      box-shadow: var(--shadow) !important;
-      border: 1px solid var(--chat-border) !important;
-      background: var(--chat-bg) !important;
-      color: var(--text) !important;
-    }
+/* Window */
+#n8n-chat .chat-window{
+  width: var(--chat-width) !important;
+  height: var(--chat-height) !important;
+  max-width: calc(100vw - (var(--gap) * 2)) !important;
+  max-height: calc(100vh - (var(--gap) * 2)) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--chat-border) !important;
+  background: var(--chat-bg) !important;
+  color: var(--text) !important;
+}
 
-    #n8n-chat .chat-header{ display:none !important; }
+/* Header aus */
+#n8n-chat .chat-header{ display:none !important; }
 
-    #n8n-chat main.chat-layout.chat-wrapper,
-    #n8n-chat .chat-layout,
-    #n8n-chat .chat-wrapper,
-    #n8n-chat .chat-body,
-    #n8n-chat .chat-messages-list,
-    #n8n-chat .chat-messages,
-    #n8n-chat .chat-footer{
-      background: var(--chat-bg) !important;
-      background-color: var(--chat-bg) !important;
-      color: var(--text) !important;
-    }
+/* Dunkler Hintergrund */
+#n8n-chat main.chat-layout.chat-wrapper,
+#n8n-chat .chat-layout,
+#n8n-chat .chat-wrapper,
+#n8n-chat .chat-body,
+#n8n-chat .chat-messages-list,
+#n8n-chat .chat-messages,
+#n8n-chat .chat-footer{
+  background: var(--chat-bg) !important;
+  background-color: var(--chat-bg) !important;
+  color: var(--text) !important;
+}
 
-    #n8n-chat .chat-message,
-    #n8n-chat .chat-message--bot,
-    #n8n-chat .chat-message--user{
-      background: var(--bubble) !important;
-      background-color: var(--bubble) !important;
-      color: var(--text) !important;
-      border: 1px solid var(--bubble-border) !important;
-      border-radius: 14px !important;
-      font-size: 13px !important;
-      line-height: 1.45 !important;
-    }
+/* Bubbles */
+#n8n-chat .chat-message,
+#n8n-chat .chat-message--bot,
+#n8n-chat .chat-message--user{
+  background: var(--bubble) !important;
+  background-color: var(--bubble) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--bubble-border) !important;
+  border-radius: 14px !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
 
-    #n8n-chat .chat-input{
-      background: var(--input-bg) !important;
-      background-color: var(--input-bg) !important;
-      border-top: 1px solid var(--chat-border) !important;
-    }
-    #n8n-chat .chat-input textarea,
-    #n8n-chat .chat-input input{
-      background: transparent !important;
-      color: var(--text) !important;
-      border: none !important;
-      outline: none !important;
-    }
-    #n8n-chat .chat-input textarea::placeholder,
-    #n8n-chat .chat-input input::placeholder{
-      color: var(--muted) !important;
-    }
+/* Input */
+#n8n-chat .chat-input{
+  background: var(--input-bg) !important;
+  background-color: var(--input-bg) !important;
+  border-top: 1px solid var(--chat-border) !important;
+}
+#n8n-chat .chat-input textarea,
+#n8n-chat .chat-input input{
+  background: transparent !important;
+  color: var(--text) !important;
+  border: none !important;
+  outline: none !important;
+}
+#n8n-chat .chat-input textarea::placeholder,
+#n8n-chat .chat-input input::placeholder{
+  color: var(--muted) !important;
+}
 
-    #n8n-chat .chat-input-send-button{
-      background: transparent !important;
-      border: 1px solid rgba(255,255,255,.25) !important;
-      border-radius: 10px !important;
-    }
-    #n8n-chat .chat-input-send-button svg,
-    #n8n-chat .chat-input-send-button svg *{
-      fill: #fff !important;
-      stroke: #fff !important;
-    }
+/* Send Button */
+#n8n-chat .chat-input-send-button{
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  border-radius: 10px !important;
+}
+#n8n-chat .chat-input-send-button svg,
+#n8n-chat .chat-input-send-button svg *{
+  fill: #fff !important;
+  stroke: #fff !important;
+}
 
-    #n8n-chat .chat-window-toggle{
-      width: 56px !important;
-      height: 56px !important;
-      border-radius: 999px !important;
-      background: var(--input-bg) !important;
-      border: 1px solid rgba(255,255,255,.25) !important;
-      box-shadow: var(--shadow) !important;
-      position: relative !important;
-      color: #fff !important;
-    }
+/* Floating Button: 💈 */
+#n8n-chat .chat-window-toggle{
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 999px !important;
+  background: var(--input-bg) !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  box-shadow: var(--shadow) !important;
+  position: relative !important;
+  color: #fff !important;
+}
+#n8n-chat .chat-window-toggle svg,
+#n8n-chat .chat-window-toggle img{ display:none !important; }
+#n8n-chat .chat-window-toggle::after{
+  content:"💈";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  line-height:1;
+}
 
-    #n8n-chat .chat-window-toggle svg,
-    #n8n-chat .chat-window-toggle img{
-      display:none !important;
-    }
+/* Mobile */
+@media (max-width: 768px){
+  #n8n-chat .chat-window-wrapper{
+    right: 8px !important;
+    bottom: 8px !important;
+  }
+  #n8n-chat .chat-window{
+    width: calc(100vw - 16px) !important;
+    height: calc(100vh - 16px) !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 14px !important;
+  }
+  #n8n-chat .chat-message{
+    max-width: 90% !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+}
 
-    #n8n-chat .chat-window-toggle::after{
-      content:"💈";
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      font-size:20px;
-      line-height:1;
-    }
+/* Start-Menü offen => Input aus (kein "Nachricht schreiben…") */
+body.cf-menu-open #n8n-chat .chat-input{
+  display:none !important;
+}
 
-    @media (max-width: 768px){
-      #n8n-chat .chat-window-wrapper{
-        right: 8px !important;
-        bottom: 8px !important;
-      }
-      #n8n-chat .chat-window{
-        width: calc(100vw - 16px) !important;
-        height: calc(100vh - 16px) !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-        border-radius: 14px !important;
-      }
-      #n8n-chat .chat-message{
-        max-width: 90% !important;
-        font-size: 14px !important;
-        line-height: 1.5 !important;
-      }
-    }
+/* NUR Branding ausblenden (NICHT den Footer/Input killen) */
+#n8n-chat a[href*="n8n"],
+#n8n-chat [class*="powered"],
+#n8n-chat .powered-by{
+  display:none !important;
+}
+`;
 
-    /* Start-Menü offen => Input/Placeholder aus */
-    body.cf-menu-open #n8n-chat .chat-footer,
-    body.cf-menu-open #n8n-chat .chat-input{
-      display:none !important;
-    }
-
-    /* "Powered by n8n" ausblenden */
-    #n8n-chat .chat-footer a,
-    #n8n-chat .chat-footer .powered-by,
-    #n8n-chat .powered-by{
-      display:none !important;
-    }
-    `;
-
-    const style = document.createElement("style");
-    style.id = "n8n-overrides";
-    style.textContent = css;
-    document.head.appendChild(style);
-
-    // Placeholder sicher setzen
-    const setPlaceholder = () => {
-      const el = document.querySelector('#n8n-chat textarea, #n8n-chat input[type="text"]');
-      if (el) el.setAttribute("placeholder", "Nachricht schreiben…");
+    const injectCss = (text) => {
+      const old = document.getElementById("n8n-overrides");
+      if (old) old.remove();
+      const s = document.createElement("style");
+      s.id = "n8n-overrides";
+      s.textContent = text;
+      document.head.appendChild(s);
     };
-    new MutationObserver(setPlaceholder).observe(document.documentElement, { childList:true, subtree:true });
-    setTimeout(setPlaceholder, 50);
-    setTimeout(setPlaceholder, 250);
-    setTimeout(setPlaceholder, 800);
+    injectCss(css);
 
-    // ===== Start-Menü Logik =====
+    // === 3) Robust: falls irgendwo "Powered by" als Text-Node bleibt, entfernen ===
+    const removePoweredBy = () => {
+      const root = document.getElementById("n8n-chat");
+      if (!root) return;
+      // entferne alle Elemente, die "Powered by" enthalten
+      root.querySelectorAll("*").forEach(el => {
+        const t = (el.textContent || "").trim();
+        if (t.toLowerCase().includes("powered by")) el.style.display = "none";
+      });
+    };
+
+    // === 4) Start-Menü Logik ===
     const startEl = document.getElementById("cf-start");
     const MODE_KEY = "cf_mode_v1";
 
@@ -361,54 +365,63 @@
       startEl.setAttribute("aria-hidden","true");
     };
 
-    // Klicks im Overlay dürfen NICHT schließen
+    // Klicks im Overlay dürfen nicht schließen
     startEl.addEventListener("click", (e) => e.stopPropagation());
 
-    // Toggle normal öffnen lassen (damit Layout gleich bleibt), dann Overlay drüber
+    // Toggle normal öffnen lassen (damit Format/Farben identisch bleiben), dann Menü drüber
     const bindToggle = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       if (!toggle) return false;
 
       toggle.addEventListener("click", () => {
-        if (!localStorage.getItem(MODE_KEY)) {
-          setTimeout(openStart, 0);
-        }
+        removePoweredBy();
+        // Wenn noch kein Mode gesetzt: Overlay zeigen
+        if (!localStorage.getItem(MODE_KEY)) setTimeout(openStart, 0);
       });
 
       return true;
     };
 
-    const obs = new MutationObserver(() => {
-      if (bindToggle()) obs.disconnect();
-    });
-    obs.observe(document.documentElement, { childList:true, subtree:true });
+    // Wartet bis Widget DOM da ist
+    const ready = new MutationObserver(() => {
+      const root = document.getElementById("n8n-chat");
+      if (!root) return;
 
-    // MODE unsichtbar beim ersten echten User-Text prefixen
-    const hijackSend = () => {
+      // Stelle sicher: CSS + Branding-Removal greifen auch nach Re-Renders
+      injectCss(css);
+      removePoweredBy();
+
+      // Toggle binden + Send-Hook binden
+      bindToggle();
+      hookSend();
+
+      ready.disconnect();
+    });
+    ready.observe(document.documentElement, { childList:true, subtree:true });
+
+    // === 5) MODE wird NICHT als eigene Message gesendet.
+    // Wir prefixen beim ersten echten User-Text: [MODE:XYZ]\n...
+    const hookSend = () => {
       const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
       const ta = document.querySelector("#n8n-chat textarea");
-      if (!sendBtn || !ta) return false;
-      if (sendBtn.dataset.cfHooked === "1") return true;
+      if (!sendBtn || !ta) return;
+      if (sendBtn.dataset.cfHooked === "1") return;
       sendBtn.dataset.cfHooked = "1";
 
       sendBtn.addEventListener("click", () => {
+        removePoweredBy();
+
         const mode = localStorage.getItem(MODE_KEY);
         if (!mode) return;
+
         if (!ta.value.startsWith("[MODE:")) {
           ta.value = `[MODE:${mode}]\n` + ta.value;
           ta.dispatchEvent(new Event("input", { bubbles:true }));
         }
       }, true);
-
-      return true;
     };
 
-    const obs2 = new MutationObserver(() => {
-      if (hijackSend()) obs2.disconnect();
-    });
-    obs2.observe(document.documentElement, { childList:true, subtree:true });
-
-    // Buttons: Mode speichern, Overlay zu, Chat bleibt im selben Fenster/Look
+    // Buttons: Mode speichern, Overlay zu, Chat bleibt IM SELBEN FENSTER (gleiches Layout)
     startEl.querySelectorAll("button[data-mode]").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
@@ -416,7 +429,9 @@
 
         const mode = btn.getAttribute("data-mode");
         localStorage.setItem(MODE_KEY, mode);
+
         closeStart();
+        removePoweredBy();
 
         setTimeout(() => {
           const ta = document.querySelector("#n8n-chat textarea");
@@ -430,6 +445,10 @@
       if (startEl.style.display !== "block") return;
       if (!startEl.contains(e.target)) closeStart();
     });
+
+    // Sicherheits-Refresh gegen “nur Powered by” nach Cache/Reload:
+    setTimeout(() => { injectCss(css); removePoweredBy(); }, 250);
+    setTimeout(() => { injectCss(css); removePoweredBy(); }, 900);
   </script>
 </body>
 </html>
