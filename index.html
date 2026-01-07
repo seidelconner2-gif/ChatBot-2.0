@@ -169,13 +169,6 @@
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js?v=12";
 
-    createChat({
-      webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
-      mode: "window",
-      chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [] // keine Bubble-Message im Chat
-    });
-
     // ===== ORIGINAL Overrides (wie bei dir), nur minimal ergänzt =====
     const css = `
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
