@@ -50,7 +50,7 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
-    /* ===== NUR CHAT: Start-Auswahl als Overlay im Chatfenster ===== */
+    /* ===== NUR CHAT: Start-Auswahl Overlay ===== */
     #cf-start{
       position: fixed;
       right: var(--gap);
@@ -73,34 +73,44 @@
       height:100%;
       display:flex;
       flex-direction:column;
-      padding:14px;
-      gap:12px;
+      padding:18px 16px;
+      gap:14px;
+      align-items:center; /* zentriert */
+      justify-content:flex-start;
     }
 
-    /* Text oben NICHT als Bubble, sondern normal auf Chat-Hintergrund */
-    #cf-start .welcome{
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.45;
-      white-space: pre-line;
-      padding: 2px 2px 0;
+    /* Top-Text: KEINE Bubble, zentriert, weiß */
+    #cf-start .headline{
+      width:100%;
+      text-align:center;
+      color:var(--text);
+      font-size:14px;
+      line-height:1.5;
+      white-space:pre-line;
+      padding:6px 6px 2px;
+    }
+    #cf-start .headline .muted{
+      color: var(--muted);
     }
 
-    /* 3 Auswahlflächen: je ~20% der Chat-Höhe */
+    /* Auswahl-Bubbles: zentriert + größer (je ~20% Höhe) */
     #cf-start .opts{
+      width:100%;
+      flex:1;
       display:flex;
       flex-direction:column;
-      gap:10px;
-      flex:1;
+      gap:12px;
+      justify-content:flex-start;
+      align-items:center; /* zentriert */
     }
     #cf-start .opt{
       flex: 0 0 20%;
-      width:100%;
+      width: 96%;
       text-align:left;
       background: var(--bubble);
       border: 1px solid var(--bubble-border);
       border-radius: 14px;
-      padding: 14px;
+      padding: 16px;
       color: var(--text);
       cursor:pointer;
       font-size: 15px;
@@ -127,7 +137,7 @@
         max-height: 100vh;
         border-radius: 14px;
       }
-      #cf-start .opt{ flex-basis: 20%; }
+      #cf-start .opt{ width: 100%; }
     }
   </style>
 </head>
@@ -141,8 +151,10 @@
   <!-- Start-Auswahl Overlay -->
   <div id="cf-start" aria-hidden="true">
     <div class="inner">
-      <div class="welcome">👋 Willkommen bei Conar Friseur 💈
-Wähle kurz aus, wobei ich dir helfen darf:</div>
+      <div class="headline">👋 Willkommen bei Conar Friseur 💈
+<span class="muted">Wähle kurz aus, wobei ich dir helfen darf.</span>
+
+<span class="muted">Du willst einen Termin buchen? Dann klicke auf Jason oder Elina. 📆</span></div>
 
       <div class="opts">
         <button class="opt" data-mode="INFO">
@@ -166,21 +178,17 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
-    // ===== Initial Messages (wie gefordert) =====
-    // WICHTIG: Das ist die allgemeine Begrüßung im "normalen Chat".
-    const INITIAL_GENERAL = `👋 Willkommen bei Conar Friseur 💈
-Schön, dass du da bist 😊
-Wähle oben im Menü: Infos, Jason oder Elina.`;
-
+    // WICHTIG: Keine Initial-Bubble im Chat (deine Start-Info ist oben im Overlay)
     createChat({
       webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
       chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [INITIAL_GENERAL]
+      initialMessages: []
     });
 
-    // ===== Deine ORIGINAL Overrides (1:1) =====
-    // (Plus: wenn Start-Menü offen, Input ausblenden)
+    // ===== Deine ORIGINAL Overrides (1:1) + 2 kleine Ergänzungen =====
+    // - "Powered by n8n" ausblenden
+    // - wenn Start-Menü offen: Input ausblenden
     const css = `
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
@@ -309,9 +317,16 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
       }
     }
 
-    /* Start-Menü offen => Input weg (kein Placeholder) */
+    /* Start-Menü offen => Input/Placeholder aus */
     body.cf-menu-open #n8n-chat .chat-footer,
     body.cf-menu-open #n8n-chat .chat-input{
+      display:none !important;
+    }
+
+    /* "Powered by n8n" ausblenden */
+    #n8n-chat .chat-footer a,
+    #n8n-chat .chat-footer .powered-by,
+    #n8n-chat .powered-by{
       display:none !important;
     }
     `;
@@ -346,16 +361,15 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
       startEl.setAttribute("aria-hidden","true");
     };
 
-    // Klicks im Overlay dürfen nicht "Fenster schließen"
+    // Klicks im Overlay dürfen NICHT schließen
     startEl.addEventListener("click", (e) => e.stopPropagation());
 
-    // Toggle normal öffnen lassen, aber sofort Overlay drüberlegen (damit kein anderes Layout entsteht)
+    // Toggle normal öffnen lassen (damit Layout gleich bleibt), dann Overlay drüber
     const bindToggle = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       if (!toggle) return false;
 
       toggle.addEventListener("click", () => {
-        // Wenn noch kein Modus gewählt wurde -> Start-Menü zeigen
         if (!localStorage.getItem(MODE_KEY)) {
           setTimeout(openStart, 0);
         }
@@ -369,8 +383,7 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
     });
     obs.observe(document.documentElement, { childList:true, subtree:true });
 
-    // Wichtig: Kein "MODE:..." als sichtbare User-Message.
-    // -> Wir prefixen es unsichtbar beim ERSTEN echten User-Text.
+    // MODE unsichtbar beim ersten echten User-Text prefixen
     const hijackSend = () => {
       const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
       const ta = document.querySelector("#n8n-chat textarea");
@@ -395,7 +408,7 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
     });
     obs2.observe(document.documentElement, { childList:true, subtree:true });
 
-    // Buttons: Mode speichern, Overlay zu, Chat bleibt gleich (keine externen Fenster)
+    // Buttons: Mode speichern, Overlay zu, Chat bleibt im selben Fenster/Look
     startEl.querySelectorAll("button[data-mode]").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
@@ -405,7 +418,6 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
         localStorage.setItem(MODE_KEY, mode);
         closeStart();
 
-        // Fokus ins Eingabefeld
         setTimeout(() => {
           const ta = document.querySelector("#n8n-chat textarea");
           if (ta) ta.focus();
@@ -416,8 +428,7 @@ Wähle oben im Menü: Infos, Jason oder Elina.`;
     // Klick außerhalb schließt Overlay
     document.addEventListener("click", (e) => {
       if (startEl.style.display !== "block") return;
-      const inside = startEl.contains(e.target);
-      if (!inside) closeStart();
+      if (!startEl.contains(e.target)) closeStart();
     });
   </script>
 </body>
