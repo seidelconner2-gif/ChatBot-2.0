@@ -50,7 +50,7 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
-    /* ===== Start-Auswahl IM Chatfenster (nur UI, gleiche Farben wie Bubble) ===== */
+    /* ===== NUR CHAT: Start-Auswahl als Overlay im Chatfenster ===== */
     #cf-start{
       position: fixed;
       right: var(--gap);
@@ -68,45 +68,53 @@
       z-index: 10001;
       display: none;
     }
+
     #cf-start .inner{
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 14px;
-      gap: 12px;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding:14px;
+      gap:12px;
     }
+
+    /* Text oben NICHT als Bubble, sondern normal auf Chat-Hintergrund */
     #cf-start .welcome{
-      background: var(--bubble);
-      border: 1px solid var(--bubble-border);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 13px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.45;
       white-space: pre-line;
+      padding: 2px 2px 0;
     }
+
+    /* 3 Auswahlflächen: je ~20% der Chat-Höhe */
     #cf-start .opts{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
     }
     #cf-start .opt{
-      width: 100%;
-      text-align: left;
+      flex: 0 0 20%;
+      width:100%;
+      text-align:left;
       background: var(--bubble);
       border: 1px solid var(--bubble-border);
       border-radius: 14px;
       padding: 14px;
       color: var(--text);
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1.35;
+      cursor:pointer;
+      font-size: 15px;
+      line-height:1.35;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
     #cf-start .opt small{
       display:block;
       margin-top:6px;
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.3;
+      line-height:1.3;
     }
 
     @media (max-width: 768px){
@@ -119,6 +127,7 @@
         max-height: 100vh;
         border-radius: 14px;
       }
+      #cf-start .opt{ flex-basis: 20%; }
     }
   </style>
 </head>
@@ -129,7 +138,7 @@
     <p>Termine buchen / ändern / stornieren direkt im Chat unten rechts.</p>
   </div>
 
-  <!-- Start-Auswahl (ersetzt "leeres Chatfenster", OHNE Input/Placeholder) -->
+  <!-- Start-Auswahl Overlay -->
   <div id="cf-start" aria-hidden="true">
     <div class="inner">
       <div class="welcome">👋 Willkommen bei Conar Friseur 💈
@@ -157,27 +166,29 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
-    // 1) Chat wie vorher erstellen (Design bleibt über CSS Overrides gleich)
+    // ===== Initial Messages (wie gefordert) =====
+    // WICHTIG: Das ist die allgemeine Begrüßung im "normalen Chat".
+    const INITIAL_GENERAL = `👋 Willkommen bei Conar Friseur 💈
+Schön, dass du da bist 😊
+Wähle oben im Menü: Infos, Jason oder Elina.`;
+
     createChat({
       webhookUrl: "https://conner1005.app.n8n.cloud/webhook/f668ed1a-bada-45b9-8ee7-53f71d5baf5d/chat",
       mode: "window",
       chatInputPlaceholder: "Nachricht schreiben…",
-      initialMessages: [] // keine Start-Message im Widget
+      initialMessages: [INITIAL_GENERAL]
     });
 
-    // 2) Deine ORIGINAL Overrides (unverändert) + 2 kleine Ergänzungen:
-    //    a) Header-Text "Hi there!" verstecken
-    //    b) Wenn Start-Menü offen: Input/Placeholder ausblenden
+    // ===== Deine ORIGINAL Overrides (1:1) =====
+    // (Plus: wenn Start-Menü offen, Input ausblenden)
     const css = `
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
-    /* Zeilenumbrüche in Messages wirklich anzeigen */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message *{
       white-space: pre-line !important;
     }
 
-    /* Wrapper Position */
     #n8n-chat .chat-window-wrapper{
       position: fixed !important;
       right: var(--gap) !important;
@@ -186,7 +197,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       z-index: 9999 !important;
     }
 
-    /* Window */
     #n8n-chat .chat-window{
       width: var(--chat-width) !important;
       height: var(--chat-height) !important;
@@ -200,10 +210,8 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       color: var(--text) !important;
     }
 
-    /* Header aus */
     #n8n-chat .chat-header{ display:none !important; }
 
-    /* Komplett dunkler Hintergrund im Chat */
     #n8n-chat main.chat-layout.chat-wrapper,
     #n8n-chat .chat-layout,
     #n8n-chat .chat-wrapper,
@@ -216,7 +224,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       color: var(--text) !important;
     }
 
-    /* Bubbles: beide hellgrau */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message--bot,
     #n8n-chat .chat-message--user{
@@ -229,7 +236,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       line-height: 1.45 !important;
     }
 
-    /* Input */
     #n8n-chat .chat-input{
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
@@ -247,7 +253,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       color: var(--muted) !important;
     }
 
-    /* Send Button */
     #n8n-chat .chat-input-send-button{
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
@@ -259,7 +264,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       stroke: #fff !important;
     }
 
-    /* Floating Button: Barber Icon (wieder 💈 wie vorher) */
     #n8n-chat .chat-window-toggle{
       width: 56px !important;
       height: 56px !important;
@@ -271,13 +275,11 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       color: #fff !important;
     }
 
-    /* Standard-Icon ausblenden */
     #n8n-chat .chat-window-toggle svg,
     #n8n-chat .chat-window-toggle img{
       display:none !important;
     }
 
-    /* 💈 reinrendern */
     #n8n-chat .chat-window-toggle::after{
       content:"💈";
       position:absolute;
@@ -288,7 +290,6 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       line-height:1;
     }
 
-    /* ===== MOBILE CHAT – FINAL ===== */
     @media (max-width: 768px){
       #n8n-chat .chat-window-wrapper{
         right: 8px !important;
@@ -308,7 +309,7 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       }
     }
 
-    /* ===== Start-Menü offen => Input/Placeholder aus ===== */
+    /* Start-Menü offen => Input weg (kein Placeholder) */
     body.cf-menu-open #n8n-chat .chat-footer,
     body.cf-menu-open #n8n-chat .chat-input{
       display:none !important;
@@ -330,32 +331,32 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
     setTimeout(setPlaceholder, 250);
     setTimeout(setPlaceholder, 800);
 
-    // ===== Logik: Start-Menü statt leerem Chat =====
+    // ===== Start-Menü Logik =====
     const startEl = document.getElementById("cf-start");
-    let modeChosen = false;
+    const MODE_KEY = "cf_mode_v1";
 
     const openStart = () => {
       document.body.classList.add("cf-menu-open");
       startEl.style.display = "block";
       startEl.setAttribute("aria-hidden","false");
     };
-
     const closeStart = () => {
       document.body.classList.remove("cf-menu-open");
       startEl.style.display = "none";
       startEl.setAttribute("aria-hidden","true");
     };
 
-    // Wichtig:
-    // Wir lassen den Chat TOGGLE normal öffnen (damit Layout & Styling korrekt bleibt),
-    // aber legen unser Start-Menü darüber, solange noch kein Modus gewählt wurde.
+    // Klicks im Overlay dürfen nicht "Fenster schließen"
+    startEl.addEventListener("click", (e) => e.stopPropagation());
+
+    // Toggle normal öffnen lassen, aber sofort Overlay drüberlegen (damit kein anderes Layout entsteht)
     const bindToggle = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       if (!toggle) return false;
 
       toggle.addEventListener("click", () => {
-        if (!modeChosen) {
-          // Nach dem Öffnen kurz warten, dann Overlay drüber
+        // Wenn noch kein Modus gewählt wurde -> Start-Menü zeigen
+        if (!localStorage.getItem(MODE_KEY)) {
           setTimeout(openStart, 0);
         }
       });
@@ -368,61 +369,23 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
     });
     obs.observe(document.documentElement, { childList:true, subtree:true });
 
-    // MODE Nachricht senden, aber NICHT als sichtbare User-Message:
-    // -> Wir schreiben NICHT ins Textfeld, sondern callen den Webhook direkt (silent).
-    // -> Danach fügen wir die Antwort nicht lokal ein (das macht n8n-chat automatisch NICHT),
-    //    daher muss n8n zusätzlich die UI-Startmessage liefern, sobald User normal schreibt.
-    //
-    // LÖSUNG: Wir speichern den Modus in localStorage + setzen ihn als Prefix beim NÄCHSTEN echten User-Text.
-    // Dann sieht der User nie "MODE:..." als eigene Nachricht.
-
-    const MODE_KEY = "cf_mode_v1";
-    const setMode = (m) => localStorage.setItem(MODE_KEY, m);
-    const getMode = () => localStorage.getItem(MODE_KEY);
-
-    // Wenn gewählt: Modus merken, Start-Menü schließen.
-    startEl.querySelectorAll("button[data-mode]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const mode = btn.getAttribute("data-mode");
-        setMode(mode);
-        modeChosen = true;
-        closeStart();
-
-        // Optional: kleine Hinweis-Botmessage kommt dann aus n8n beim ersten Text.
-        // Fokus ins Eingabefeld:
-        setTimeout(() => {
-          const ta = document.querySelector("#n8n-chat textarea");
-          if (ta) ta.focus();
-        }, 50);
-      });
-    });
-
-    // Beim ersten echten Senden wird der Mode unsichtbar als Prefix mitgeschickt:
+    // Wichtig: Kein "MODE:..." als sichtbare User-Message.
+    // -> Wir prefixen es unsichtbar beim ERSTEN echten User-Text.
     const hijackSend = () => {
       const sendBtn = document.querySelector("#n8n-chat .chat-input-send-button");
       const ta = document.querySelector("#n8n-chat textarea");
       if (!sendBtn || !ta) return false;
-
-      // Nur einmal hooken
       if (sendBtn.dataset.cfHooked === "1") return true;
       sendBtn.dataset.cfHooked = "1";
 
-      const originalClick = sendBtn.onclick;
       sendBtn.addEventListener("click", () => {
-        const mode = getMode();
-        if (!mode) return; // kein mode => normal
-
-        // Wenn der User noch NICHT im Flow ist, prefixen wir einmalig:
-        // z.B. "[MODE:INFO]\nUserText"
-        // -> n8n kann das sauber parsen, ohne dass der User "MODE:..." als eigene Message sieht.
+        const mode = localStorage.getItem(MODE_KEY);
+        if (!mode) return;
         if (!ta.value.startsWith("[MODE:")) {
           ta.value = `[MODE:${mode}]\n` + ta.value;
           ta.dispatchEvent(new Event("input", { bubbles:true }));
         }
       }, true);
-
-      // optional originalClick bleibt
-      if (typeof originalClick === "function") sendBtn.onclick = originalClick;
 
       return true;
     };
@@ -431,6 +394,31 @@ Wähle kurz aus, wobei ich dir helfen darf:</div>
       if (hijackSend()) obs2.disconnect();
     });
     obs2.observe(document.documentElement, { childList:true, subtree:true });
+
+    // Buttons: Mode speichern, Overlay zu, Chat bleibt gleich (keine externen Fenster)
+    startEl.querySelectorAll("button[data-mode]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const mode = btn.getAttribute("data-mode");
+        localStorage.setItem(MODE_KEY, mode);
+        closeStart();
+
+        // Fokus ins Eingabefeld
+        setTimeout(() => {
+          const ta = document.querySelector("#n8n-chat textarea");
+          if (ta) ta.focus();
+        }, 50);
+      });
+    });
+
+    // Klick außerhalb schließt Overlay
+    document.addEventListener("click", (e) => {
+      if (startEl.style.display !== "block") return;
+      const inside = startEl.contains(e.target);
+      if (!inside) closeStart();
+    });
   </script>
 </body>
 </html>
