@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conar Friseur</title>
 
-  <!-- n8n Pflicht-CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" />
 
   <style>
     :root{
-      /* Website */
       --page-bg:#0b0c10;
       --page-text:#ffffff;
 
-      /* Chat */
       --chat-bg:#14161a;
       --chat-border:rgba(255,255,255,.14);
 
@@ -49,19 +46,13 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
-    /* =========================
-       n8n Widget: DEIN DESIGN
-       ========================= */
-
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
-    /* Zeilenumbrüche anzeigen */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message *{
       white-space: pre-line !important;
     }
 
-    /* Wrapper Position (unten rechts) */
     #n8n-chat .chat-window-wrapper{
       position: fixed !important;
       right: var(--gap) !important;
@@ -70,7 +61,6 @@
       z-index: 9999 !important;
     }
 
-    /* Window */
     #n8n-chat .chat-window{
       width: var(--chat-width) !important;
       height: var(--chat-height) !important;
@@ -85,10 +75,8 @@
       position: relative !important;
     }
 
-    /* Header aus */
     #n8n-chat .chat-header{ display:none !important; }
 
-    /* Komplett dunkler Hintergrund im Chat */
     #n8n-chat main.chat-layout.chat-wrapper,
     #n8n-chat .chat-layout,
     #n8n-chat .chat-wrapper,
@@ -101,7 +89,6 @@
       color: var(--text) !important;
     }
 
-    /* Bubbles: beide hellgrau */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message--bot,
     #n8n-chat .chat-message--user{
@@ -114,7 +101,6 @@
       line-height: 1.45 !important;
     }
 
-    /* Input */
     #n8n-chat .chat-input{
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
@@ -132,7 +118,6 @@
       color: var(--muted) !important;
     }
 
-    /* Send Button */
     #n8n-chat .chat-input-send-button{
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
@@ -144,13 +129,11 @@
       stroke: #fff !important;
     }
 
-    /* Powered by n8n ausblenden (falls vorhanden) */
     #n8n-chat .chat-footer .powered-by,
     #n8n-chat .chat-footer a[href*="n8n"]{
       display:none !important;
     }
 
-    /* Floating Button: Barber Icon */
     #n8n-chat .chat-window-toggle{
       width: 56px !important;
       height: 56px !important;
@@ -175,15 +158,12 @@
       line-height:1;
     }
 
-    /* =========================
-       Overlay: Menü + Back im Chat
-       ========================= */
     .cf-overlay{
       position:absolute;
       inset:0;
       padding:14px 14px 12px;
       background: transparent;
-      z-index: 50; /* über Messages */
+      z-index: 50;
       display:none;
     }
     .cf-overlay.is-open{ display:block; }
@@ -225,7 +205,6 @@
     }
     .cf-option:hover{ filter:brightness(1.08); }
 
-    /* Back Button */
     .cf-back{
       position:absolute;
       top:10px;
@@ -245,7 +224,6 @@
     .cf-back.is-open{ display:grid; }
     .cf-back::before{ content:"←"; font-size:16px; line-height:1; }
 
-    /* Mobile */
     @media (max-width: 768px){
       #n8n-chat .chat-window-wrapper{
         right: 8px !important;
@@ -277,7 +255,6 @@
   <script type="module">
     import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
-    // ✅ DEINE PRODUKTIONS-URL (bereits eingesetzt)
     const WEBHOOK_BASE = "https://seidel1502.app.n8n.cloud/webhook/conar-chat";
 
     const buildWebhookUrl = (mode) => {
@@ -285,43 +262,61 @@
       return WEBHOOK_BASE + (hasQ ? "&" : "?") + "mode=" + encodeURIComponent(mode);
     };
 
-    // Individuelle initial message pro Auswahl (nur fürs Widget – dein Workflow kann zusätzlich selber begrüßen)
-    const initialFor = (mode) => {
-      if (mode === "info")  return "ℹ️ Ich gebe dir Infos zu Conar Friseur 😊";
-      if (mode === "jason") return "✂️ Hi, ich bin Jason. Lass uns deinen Termin planen 😊";
-      return "✂️ Hi, ich bin Elina. Lass uns deinen Termin planen 😊";
-    };
+    // 1) Nur 1 Welcome: Menü-Welcome kommt NUR aus dem Overlay.
+    //    Deshalb: initialMessages IMMER leer lassen.
+    const initialMessages = [];
 
-    // --------
-    // Chat Instanz: wir erstellen sie initial als "Menü-Chat".
-    // Beim Wechsel (Info/Jason/Elina) wird Chat sauber neu initialisiert (gleiches Widget).
-    // --------
     let currentMode = null;
+
+    // Flag: nach Mode-Wechsel Chat-Fenster wieder öffnen (damit es nicht "zuklappt")
+    let reopenAfterInit = false;
 
     const destroyChat = () => {
       const root = document.getElementById("n8n-chat");
       if (root) root.remove();
     };
 
+    const forceOpenWindow = () => {
+      // sicher öffnen, unabhängig von Chat-API
+      const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
+      const win = document.querySelector("#n8n-chat .chat-window");
+      if (toggle && win && win.offsetParent === null) {
+        // falls window per CSS/attr geschlossen ist, toggle klicken
+        toggle.click();
+      } else if (toggle && !win) {
+        toggle.click();
+      }
+    };
+
     const initChat = (modeOrNull) => {
       destroyChat();
 
-      // Menü-Zustand: normale Basis-URL (ohne mode), wir zeigen Overlay-Menü
       const webhookUrl = modeOrNull ? buildWebhookUrl(modeOrNull) : WEBHOOK_BASE;
 
       createChat({
         webhookUrl,
         mode: "window",
         chatInputPlaceholder: "Nachricht schreiben…",
-        // Wenn du NICHT willst, dass n8n oben "Hi there" zeigt:
         showWelcomeScreen: false,
-        initialMessages: modeOrNull
-          ? [ initialFor(modeOrNull) ]
-          : [ "👋 Willkommen bei Conar Friseur 💈\nWähle kurz aus, wobei ich dir helfen soll:" ],
+        initialMessages,
       });
 
-      // Overlay einhängen, sobald das Window da ist
       attachOverlay(modeOrNull);
+
+      // Wenn wir aus einem Klick auf Info/Jason/Elina kommen:
+      // nach dem Neuaufbau sofort wieder öffnen.
+      if (reopenAfterInit) {
+        reopenAfterInit = false;
+
+        // mehrfach versuchen, weil DOM async kommt
+        let tries = 0;
+        const t = setInterval(() => {
+          tries++;
+          const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
+          if (toggle) forceOpenWindow();
+          if (toggle || tries >= 15) clearInterval(t);
+        }, 50);
+      }
     };
 
     const attachOverlay = (modeOrNull) => {
@@ -332,7 +327,6 @@
 
         if (!win || !body || !input) return false;
 
-        // Back
         let back = win.querySelector(".cf-back");
         if (!back) {
           back = document.createElement("div");
@@ -340,12 +334,12 @@
           back.title = "Zurück";
           back.addEventListener("click", () => {
             currentMode = null;
-            initChat(null); // zurück ins Menü (gleiches Widget)
+            reopenAfterInit = true;   // Menü soll offen bleiben
+            initChat(null);
           });
           win.appendChild(back);
         }
 
-        // Overlay
         let overlay = win.querySelector(".cf-overlay");
         if (!overlay) {
           overlay = document.createElement("div");
@@ -361,29 +355,30 @@ Wähle kurz aus, wobei ich dir helfen soll:</div>
           `;
 
           overlay.querySelectorAll(".cf-option").forEach(btn => {
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
               const m = btn.getAttribute("data-mode");
               currentMode = m;
-              initChat(m); // Chat neu aufsetzen -> gleicher Widget-Container, aber anderer mode
+
+              // entscheidend: nach Re-Init wieder öffnen
+              reopenAfterInit = true;
+              initChat(m);
             });
           });
 
           win.appendChild(overlay);
         }
 
-        // Menü anzeigen nur wenn kein Mode gewählt
         const inMenu = !modeOrNull;
         overlay.classList.toggle("is-open", inMenu);
         back.classList.toggle("is-open", !inMenu);
 
-        // Wenn Menü offen ist, blockt es die Eingabe bewusst (sonst doppelt/komisch).
-        // Wenn Mode aktiv: Overlay aus => Input komplett nutzbar.
         overlay.style.pointerEvents = inMenu ? "auto" : "none";
-
         return true;
       };
 
-      // Sofort versuchen, sonst beobachten
       if (tryAttach()) return;
 
       const obs = new MutationObserver(() => {
