@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conar Friseur</title>
 
+  <!-- n8n Pflicht-CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" />
 
   <style>
     :root{
+      /* Website */
       --page-bg:#0b0c10;
       --page-text:#ffffff;
 
+      /* Chat */
       --chat-bg:#14161a;
       --chat-border:rgba(255,255,255,.14);
 
@@ -46,13 +49,19 @@
     h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
     p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
 
+    /* =========================
+       n8n Widget: DEIN DESIGN
+       ========================= */
+
     #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
 
+    /* Zeilenumbrüche anzeigen */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message *{
       white-space: pre-line !important;
     }
 
+    /* Wrapper Position (unten rechts) */
     #n8n-chat .chat-window-wrapper{
       position: fixed !important;
       right: var(--gap) !important;
@@ -61,6 +70,7 @@
       z-index: 9999 !important;
     }
 
+    /* Window */
     #n8n-chat .chat-window{
       width: var(--chat-width) !important;
       height: var(--chat-height) !important;
@@ -75,8 +85,10 @@
       position: relative !important;
     }
 
+    /* Header aus */
     #n8n-chat .chat-header{ display:none !important; }
 
+    /* Komplett dunkler Hintergrund im Chat */
     #n8n-chat main.chat-layout.chat-wrapper,
     #n8n-chat .chat-layout,
     #n8n-chat .chat-wrapper,
@@ -89,6 +101,7 @@
       color: var(--text) !important;
     }
 
+    /* Bubbles: beide hellgrau */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message--bot,
     #n8n-chat .chat-message--user{
@@ -101,6 +114,7 @@
       line-height: 1.45 !important;
     }
 
+    /* Input */
     #n8n-chat .chat-input{
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
@@ -118,6 +132,7 @@
       color: var(--muted) !important;
     }
 
+    /* Send Button */
     #n8n-chat .chat-input-send-button{
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
@@ -129,11 +144,13 @@
       stroke: #fff !important;
     }
 
+    /* Powered by n8n ausblenden (falls vorhanden) */
     #n8n-chat .chat-footer .powered-by,
     #n8n-chat .chat-footer a[href*="n8n"]{
       display:none !important;
     }
 
+    /* Floating Button: Barber Icon */
     #n8n-chat .chat-window-toggle{
       width: 56px !important;
       height: 56px !important;
@@ -158,53 +175,68 @@
       line-height:1;
     }
 
+    /* =========================
+       Overlay: Menü + Back im Chat
+       ========================= */
     .cf-overlay{
       position:absolute;
       inset:0;
       padding:14px 14px 12px;
       background: transparent;
-      z-index: 50;
+      z-index: 50; /* über Messages */
       display:none;
     }
     .cf-overlay.is-open{ display:block; }
 
+    /* ✅ CHANGE: Welcome ohne Bubble (plain auf Hintergrund) */
     .cf-welcome{
-      background:var(--bubble);
-      border:1px solid var(--bubble-border);
-      border-radius:14px;
-      padding:12px 12px;
-      font-size:13px;
-      line-height:1.45;
-      white-space:pre-line;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      font-size: 15px !important;
+      line-height: 1.35 !important;
+      color: rgba(255,255,255,.92) !important;
+      white-space: pre-line;
     }
 
+    /* ✅ CHANGE: Buttons groß; zusammen ~60% => je ~20% */
     .cf-options{
-      margin-top:14px;
-      height:calc(100% - 70px);
+      margin-top:18px;
+      height:60%;
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:14px;
       align-items:center;
       justify-content:center;
       pointer-events:auto;
     }
 
     .cf-option{
-      width:20%;
-      min-width:160px;
-      max-width:260px;
+      width:72%;
+      min-width:220px;
+      max-width:320px;
+
+      height:20%;
+      min-height:68px;
+
       background:var(--bubble);
       border:1px solid var(--bubble-border);
-      border-radius:14px;
+      border-radius:16px;
       padding:12px 10px;
       text-align:center;
-      font-size:13px;
+      font-size:15px;
       line-height:1.2;
       cursor:pointer;
       user-select:none;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
     .cf-option:hover{ filter:brightness(1.08); }
 
+    /* Back Button */
     .cf-back{
       position:absolute;
       top:10px;
@@ -224,6 +256,15 @@
     .cf-back.is-open{ display:grid; }
     .cf-back::before{ content:"←"; font-size:16px; line-height:1; }
 
+    /* ✅ CHANGE: Type your question im Menü weg */
+    #n8n-chat.cf-menu-open .chat-input{
+      display:none !important;
+    }
+    #n8n-chat.cf-menu-open .chat-body{
+      padding-bottom:16px !important;
+    }
+
+    /* Mobile */
     @media (max-width: 768px){
       #n8n-chat .chat-window-wrapper{
         right: 8px !important;
@@ -241,7 +282,12 @@
         font-size: 14px !important;
         line-height: 1.5 !important;
       }
-      .cf-option{ width:70%; min-width:0; }
+      .cf-option{
+        width:80%;
+        min-width:0;
+        max-width:none;
+        min-height:74px;
+      }
     }
   </style>
 </head>
@@ -262,9 +308,12 @@
       return WEBHOOK_BASE + (hasQ ? "&" : "?") + "mode=" + encodeURIComponent(mode);
     };
 
-    // 1) Nur 1 Welcome: Menü-Welcome kommt NUR aus dem Overlay.
-    //    Deshalb: initialMessages IMMER leer lassen.
-    const initialMessages = [];
+    // ✅ CHANGE: Welcome in spezifischen Chats (Info/Jason/Elina)
+    const initialFor = (mode) => {
+      if (mode === "info")  return "ℹ️ Hi! Ich gebe dir Infos zu Conar Friseur 😊";
+      if (mode === "jason") return "✂️ Hi, ich bin Jason 😊\nSag mir einfach, wann du kommen möchtest – ich buche deinen Termin.";
+      return "✂️ Hi, ich bin Elina 😊\nSag mir einfach, wann du kommen möchtest – ich buche deinen Termin.";
+    };
 
     let currentMode = null;
 
@@ -277,15 +326,11 @@
     };
 
     const forceOpenWindow = () => {
-      // sicher öffnen, unabhängig von Chat-API
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       const win = document.querySelector("#n8n-chat .chat-window");
-      if (toggle && win && win.offsetParent === null) {
-        // falls window per CSS/attr geschlossen ist, toggle klicken
-        toggle.click();
-      } else if (toggle && !win) {
-        toggle.click();
-      }
+
+      // wenn Window nicht sichtbar ist, toggle klicken
+      if (toggle && (!win || win.offsetParent === null)) toggle.click();
     };
 
     const initChat = (modeOrNull) => {
@@ -298,17 +343,16 @@
         mode: "window",
         chatInputPlaceholder: "Nachricht schreiben…",
         showWelcomeScreen: false,
-        initialMessages,
+
+        // ✅ CHANGE: Menü hat KEINE initialMessage; spezifische Chats haben Welcome
+        initialMessages: modeOrNull ? [ initialFor(modeOrNull) ] : [],
       });
 
       attachOverlay(modeOrNull);
 
-      // Wenn wir aus einem Klick auf Info/Jason/Elina kommen:
-      // nach dem Neuaufbau sofort wieder öffnen.
       if (reopenAfterInit) {
         reopenAfterInit = false;
 
-        // mehrfach versuchen, weil DOM async kommt
         let tries = 0;
         const t = setInterval(() => {
           tries++;
@@ -327,6 +371,7 @@
 
         if (!win || !body || !input) return false;
 
+        // Back
         let back = win.querySelector(".cf-back");
         if (!back) {
           back = document.createElement("div");
@@ -334,19 +379,22 @@
           back.title = "Zurück";
           back.addEventListener("click", () => {
             currentMode = null;
-            reopenAfterInit = true;   // Menü soll offen bleiben
+            reopenAfterInit = true;
             initChat(null);
           });
           win.appendChild(back);
         }
 
+        // Overlay
         let overlay = win.querySelector(".cf-overlay");
         if (!overlay) {
           overlay = document.createElement("div");
           overlay.className = "cf-overlay";
+
+          // ✅ CHANGE: Menü-Text angepasst + ohne Bubble Styling (CSS oben)
           overlay.innerHTML = `
             <div class="cf-welcome">👋 Willkommen bei Conar Friseur 💈
-Wähle kurz aus, wobei ich dir helfen soll:</div>
+Unter den Namen kannst du auch gerne einen Termin buchen!</div>
             <div class="cf-options">
               <div class="cf-option" data-mode="info">ℹ️ Info</div>
               <div class="cf-option" data-mode="jason">✂️ Jason</div>
@@ -362,7 +410,6 @@ Wähle kurz aus, wobei ich dir helfen soll:</div>
               const m = btn.getAttribute("data-mode");
               currentMode = m;
 
-              // entscheidend: nach Re-Init wieder öffnen
               reopenAfterInit = true;
               initChat(m);
             });
@@ -372,10 +419,16 @@ Wähle kurz aus, wobei ich dir helfen soll:</div>
         }
 
         const inMenu = !modeOrNull;
+
+        // ✅ CHANGE: Input im Menü ausblenden via Klasse
+        const root = document.getElementById("n8n-chat");
+        root?.classList.toggle("cf-menu-open", inMenu);
+
         overlay.classList.toggle("is-open", inMenu);
         back.classList.toggle("is-open", !inMenu);
 
         overlay.style.pointerEvents = inMenu ? "auto" : "none";
+
         return true;
       };
 
