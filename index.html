@@ -188,7 +188,7 @@
     }
     .cf-overlay.is-open{ display:block; }
 
-    /* ✅ CHANGE: Welcome ohne Bubble (plain auf Hintergrund) */
+    /* Welcome ohne Bubble (plain auf Hintergrund) */
     .cf-welcome{
       background: transparent !important;
       border: none !important;
@@ -200,7 +200,7 @@
       white-space: pre-line;
     }
 
-    /* ✅ CHANGE: Buttons groß; zusammen ~60% => je ~20% */
+    /* Buttons groß */
     .cf-options{
       margin-top:18px;
       height:60%;
@@ -256,7 +256,7 @@
     .cf-back.is-open{ display:grid; }
     .cf-back::before{ content:"←"; font-size:16px; line-height:1; }
 
-    /* ✅ CHANGE: Type your question im Menü weg */
+    /* Type your question im Menü weg */
     #n8n-chat.cf-menu-open .chat-input{
       display:none !important;
     }
@@ -308,7 +308,7 @@
       return WEBHOOK_BASE + (hasQ ? "&" : "?") + "mode=" + encodeURIComponent(mode);
     };
 
-    // ✅ CHANGE: Welcome in spezifischen Chats (Info/Jason/Elina)
+    // Welcome in spezifischen Chats (Info/Jason/Elina)
     const initialFor = (mode) => {
       if (mode === "info")  return "ℹ️ Hi! Ich gebe dir Infos zu Conar Friseur 😊";
       if (mode === "jason") return "✂️ Hi, ich bin Jason 😊\nSag mir einfach, wann du kommen möchtest – ich buche deinen Termin.";
@@ -316,8 +316,6 @@
     };
 
     let currentMode = null;
-
-    // Flag: nach Mode-Wechsel Chat-Fenster wieder öffnen (damit es nicht "zuklappt")
     let reopenAfterInit = false;
 
     const destroyChat = () => {
@@ -328,8 +326,6 @@
     const forceOpenWindow = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       const win = document.querySelector("#n8n-chat .chat-window");
-
-      // wenn Window nicht sichtbar ist, toggle klicken
       if (toggle && (!win || win.offsetParent === null)) toggle.click();
     };
 
@@ -344,8 +340,11 @@
         chatInputPlaceholder: "Nachricht schreiben…",
         showWelcomeScreen: false,
 
-        // ✅ CHANGE: Menü hat KEINE initialMessage; spezifische Chats haben Welcome
+        // Menü hat KEINE initialMessage; spezifische Chats haben Welcome
         initialMessages: modeOrNull ? [ initialFor(modeOrNull) ] : [],
+
+        // ✅ WICHTIG: Nur das Feld "reply" im Chat anzeigen (kein komplettes JSON)
+        chatOutputKey: "reply",
       });
 
       attachOverlay(modeOrNull);
@@ -391,7 +390,6 @@
           overlay = document.createElement("div");
           overlay.className = "cf-overlay";
 
-          // ✅ CHANGE: Menü-Text angepasst + ohne Bubble Styling (CSS oben)
           overlay.innerHTML = `
             <div class="cf-welcome">👋 Willkommen bei Conar Friseur 💈
 Unter den Namen kannst du auch gerne einen Termin buchen!</div>
@@ -420,7 +418,7 @@ Unter den Namen kannst du auch gerne einen Termin buchen!</div>
 
         const inMenu = !modeOrNull;
 
-        // ✅ CHANGE: Input im Menü ausblenden via Klasse
+        // Input im Menü ausblenden via Klasse
         const root = document.getElementById("n8n-chat");
         root?.classList.toggle("cf-menu-open", inMenu);
 
