@@ -310,9 +310,9 @@
 
     // Welcome in spezifischen Chats (Info/Jason/Elina)
     const initialFor = (mode) => {
-      if (mode === "info")  return "ℹ️ Hi! Ich gebe dir Infos zu Conar Friseur 😊";
-      if (mode === "jason") return "✂️ Hi, ich bin Jason 😊\nSag mir einfach, wann du kommen möchtest – ich buche deinen Termin.";
-      return "✂️ Hi, ich bin Elina 😊\nSag mir einfach, wann du kommen möchtest – ich buche deinen Termin.";
+      if (mode === "info")  return "ℹ️ Hi! Ich gebe dir folgende Infos zu Conar Friseur 😊\n - Öffnungszeiten\n - Leistungen & Haarschnitte\n - Unseren Friseure \n - Terminbuchung";
+      if (mode === "jason") return "✂️ Hi, ich bin Jason 😊\nSag mir einfach:\n - das gewünschte Datum\n - deine bevorzugte Uhrzeit\n - Deinen Namen ";
+      return "✂️ Hi, ich bin Elina 😊\nSag mir einfach:\n - das gewünschte Datum\n - deine bevorzugte Uhrzeit\n - Deinen Namen ";
     };
 
     let currentMode = null;
