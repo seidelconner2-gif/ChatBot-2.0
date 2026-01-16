@@ -337,14 +337,30 @@
       createChat({
         webhookUrl,
         mode: "window",
+        chatInputKey: "chatInput",
         chatInputPlaceholder: "Nachricht schreiben…",
         showWelcomeScreen: false,
 
         // Menü hat KEINE initialMessage; spezifische Chats haben Welcome
         initialMessages: modeOrNull ? [ initialFor(modeOrNull) ] : [],
 
-        // ✅ WICHTIG: Nur das Feld "reply" im Chat anzeigen (kein komplettes JSON)
-        chatOutputKey: "reply",
+        // Antwort-Parsing: Extrahiere nur den "reply" Wert aus der JSON-Response
+        messageParser: (response) => {
+          // Falls response bereits ein String ist
+          if (typeof response === "string") {
+            try {
+              const parsed = JSON.parse(response);
+              return parsed.reply || parsed.output || response;
+            } catch {
+              return response;
+            }
+          }
+          // Falls response ein Objekt ist
+          if (response && typeof response === "object") {
+            return response.reply || response.output || JSON.stringify(response);
+          }
+          return String(response);
+        },
       });
 
       attachOverlay(modeOrNull);
