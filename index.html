@@ -9,60 +9,74 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" />
 
   <style>
-    :root{
+    :root {
       /* Website */
-      --page-bg:#0b0c10;
-      --page-text:#ffffff;
+      --page-bg: #0b0c10;
+      --page-text: #ffffff;
 
       /* Chat */
-      --chat-bg:#14161a;
-      --chat-border:rgba(255,255,255,.14);
+      --chat-bg: #14161a;
+      --chat-border: rgba(255,255,255,.14);
 
-      --bubble:#2a2d33;
-      --bubble-border:rgba(255,255,255,.16);
+      --bubble: #2a2d33;
+      --bubble-border: rgba(255,255,255,.16);
 
-      --text:#ffffff;
-      --muted:rgba(255,255,255,.6);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,.6);
 
-      --input-bg:#1a1c20;
-      --shadow:0 30px 80px rgba(0,0,0,.75);
+      --input-bg: #1a1c20;
+      --shadow: 0 30px 80px rgba(0,0,0,.75);
 
-      --gap:18px;
-      --chat-width:min(30vw,420px);
-      --chat-height:min(78vh,720px);
+      --gap: 18px;
+      --chat-width: min(30vw, 420px);
+      --chat-height: min(78vh, 720px);
     }
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      min-height:100vh;
-      background:var(--page-bg);
-      color:var(--page-text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--page-bg);
+      color: var(--page-text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
 
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:56px 18px 120px;
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 18px 120px;
     }
-    h1{ margin:0 0 10px; font-size:clamp(34px,4.2vw,56px); letter-spacing:-0.02em; }
-    p{ margin:0; color:rgba(255,255,255,.65); line-height:1.6; max-width:60ch; }
+    
+    h1 { 
+      margin: 0 0 10px; 
+      font-size: clamp(34px, 4.2vw, 56px); 
+      letter-spacing: -0.02em; 
+    }
+    
+    p { 
+      margin: 0; 
+      color: rgba(255,255,255,.65); 
+      line-height: 1.6; 
+      max-width: 60ch; 
+    }
 
     /* =========================
-       n8n Widget: DEIN DESIGN
+       n8n Widget: Custom Design
        ========================= */
 
-    #n8n-chat, #n8n-chat *{ font-family: inherit !important; }
+    #n8n-chat, #n8n-chat * { 
+      font-family: inherit !important; 
+    }
 
     /* Zeilenumbrüche anzeigen */
     #n8n-chat .chat-message,
-    #n8n-chat .chat-message *{
+    #n8n-chat .chat-message * {
       white-space: pre-line !important;
     }
 
     /* Wrapper Position (unten rechts) */
-    #n8n-chat .chat-window-wrapper{
+    #n8n-chat .chat-window-wrapper {
       position: fixed !important;
       right: var(--gap) !important;
       bottom: var(--gap) !important;
@@ -71,7 +85,7 @@
     }
 
     /* Window */
-    #n8n-chat .chat-window{
+    #n8n-chat .chat-window {
       width: var(--chat-width) !important;
       height: var(--chat-height) !important;
       max-width: calc(100vw - (var(--gap) * 2)) !important;
@@ -86,7 +100,9 @@
     }
 
     /* Header aus */
-    #n8n-chat .chat-header{ display:none !important; }
+    #n8n-chat .chat-header { 
+      display: none !important; 
+    }
 
     /* Komplett dunkler Hintergrund im Chat */
     #n8n-chat main.chat-layout.chat-wrapper,
@@ -95,7 +111,7 @@
     #n8n-chat .chat-body,
     #n8n-chat .chat-messages-list,
     #n8n-chat .chat-messages,
-    #n8n-chat .chat-footer{
+    #n8n-chat .chat-footer {
       background: var(--chat-bg) !important;
       background-color: var(--chat-bg) !important;
       color: var(--text) !important;
@@ -104,7 +120,7 @@
     /* Bubbles: beide hellgrau */
     #n8n-chat .chat-message,
     #n8n-chat .chat-message--bot,
-    #n8n-chat .chat-message--user{
+    #n8n-chat .chat-message--user {
       background: var(--bubble) !important;
       background-color: var(--bubble) !important;
       color: var(--text) !important;
@@ -115,43 +131,46 @@
     }
 
     /* Input */
-    #n8n-chat .chat-input{
+    #n8n-chat .chat-input {
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
       border-top: 1px solid var(--chat-border) !important;
     }
+    
     #n8n-chat .chat-input textarea,
-    #n8n-chat .chat-input input{
+    #n8n-chat .chat-input input {
       background: transparent !important;
       color: var(--text) !important;
       border: none !important;
       outline: none !important;
     }
+    
     #n8n-chat .chat-input textarea::placeholder,
-    #n8n-chat .chat-input input::placeholder{
+    #n8n-chat .chat-input input::placeholder {
       color: var(--muted) !important;
     }
 
     /* Send Button */
-    #n8n-chat .chat-input-send-button{
+    #n8n-chat .chat-input-send-button {
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
       border-radius: 10px !important;
     }
+    
     #n8n-chat .chat-input-send-button svg,
-    #n8n-chat .chat-input-send-button svg *{
+    #n8n-chat .chat-input-send-button svg * {
       fill: #fff !important;
       stroke: #fff !important;
     }
 
-    /* Powered by n8n ausblenden (falls vorhanden) */
+    /* Powered by n8n ausblenden */
     #n8n-chat .chat-footer .powered-by,
-    #n8n-chat .chat-footer a[href*="n8n"]{
-      display:none !important;
+    #n8n-chat .chat-footer a[href*="n8n"] {
+      display: none !important;
     }
 
     /* Floating Button: Barber Icon */
-    #n8n-chat .chat-window-toggle{
+    #n8n-chat .chat-window-toggle {
       width: 56px !important;
       height: 56px !important;
       border-radius: 999px !important;
@@ -161,35 +180,40 @@
       position: relative !important;
       color: #fff !important;
     }
+    
     #n8n-chat .chat-window-toggle svg,
-    #n8n-chat .chat-window-toggle img{
-      display:none !important;
+    #n8n-chat .chat-window-toggle img {
+      display: none !important;
     }
-    #n8n-chat .chat-window-toggle::after{
-      content:"💈";
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      font-size:20px;
-      line-height:1;
+    
+    #n8n-chat .chat-window-toggle::after {
+      content: "💈";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      line-height: 1;
     }
 
     /* =========================
        Overlay: Menü + Back im Chat
        ========================= */
-    .cf-overlay{
-      position:absolute;
-      inset:0;
-      padding:14px 14px 12px;
+    .cf-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 14px 14px 12px;
       background: transparent;
-      z-index: 50; /* über Messages */
-      display:none;
+      z-index: 50;
+      display: none;
     }
-    .cf-overlay.is-open{ display:block; }
+    
+    .cf-overlay.is-open { 
+      display: block; 
+    }
 
-    /* Welcome ohne Bubble (plain auf Hintergrund) */
-    .cf-welcome{
+    /* Welcome Text */
+    .cf-welcome {
       background: transparent !important;
       border: none !important;
       border-radius: 0 !important;
@@ -200,93 +224,111 @@
       white-space: pre-line;
     }
 
-    /* Buttons groß */
-    .cf-options{
-      margin-top:18px;
-      height:60%;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      align-items:center;
-      justify-content:center;
-      pointer-events:auto;
+    /* Menü Buttons */
+    .cf-options {
+      margin-top: 18px;
+      height: 60%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
     }
 
-    .cf-option{
-      width:72%;
-      min-width:220px;
-      max-width:320px;
-
-      height:20%;
-      min-height:68px;
-
-      background:var(--bubble);
-      border:1px solid var(--bubble-border);
-      border-radius:16px;
-      padding:12px 10px;
-      text-align:center;
-      font-size:15px;
-      line-height:1.2;
-      cursor:pointer;
-      user-select:none;
-
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    .cf-option {
+      width: 72%;
+      min-width: 220px;
+      max-width: 320px;
+      height: 20%;
+      min-height: 68px;
+      background: var(--bubble);
+      border: 1px solid var(--bubble-border);
+      border-radius: 16px;
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.2;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.15s ease;
     }
-    .cf-option:hover{ filter:brightness(1.08); }
+    
+    .cf-option:hover { 
+      filter: brightness(1.12); 
+    }
 
     /* Back Button */
-    .cf-back{
-      position:absolute;
-      top:10px;
-      left:10px;
-      width:32px;
-      height:32px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.18);
-      display:none;
-      place-items:center;
-      color:rgba(255,255,255,.85);
-      background:rgba(0,0,0,.12);
-      cursor:pointer;
-      user-select:none;
+    .cf-back {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      display: none;
+      place-items: center;
+      color: rgba(255,255,255,.85);
+      background: rgba(0,0,0,.12);
+      cursor: pointer;
+      user-select: none;
       z-index: 60;
+      transition: background 0.15s ease;
     }
-    .cf-back.is-open{ display:grid; }
-    .cf-back::before{ content:"←"; font-size:16px; line-height:1; }
+    
+    .cf-back.is-open { 
+      display: grid; 
+    }
+    
+    .cf-back:hover {
+      background: rgba(255,255,255,.1);
+    }
+    
+    .cf-back::before { 
+      content: "←"; 
+      font-size: 16px; 
+      line-height: 1; 
+    }
 
-    /* Type your question im Menü weg */
-    #n8n-chat.cf-menu-open .chat-input{
-      display:none !important;
+    /* Input im Menü ausblenden */
+    #n8n-chat.cf-menu-open .chat-input {
+      display: none !important;
     }
-    #n8n-chat.cf-menu-open .chat-body{
-      padding-bottom:16px !important;
+    
+    #n8n-chat.cf-menu-open .chat-body {
+      padding-bottom: 16px !important;
     }
 
-    /* Mobile */
-    @media (max-width: 768px){
-      #n8n-chat .chat-window-wrapper{
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      #n8n-chat .chat-window-wrapper {
         right: 8px !important;
         bottom: 8px !important;
       }
-      #n8n-chat .chat-window{
+      
+      #n8n-chat .chat-window {
         width: calc(100vw - 16px) !important;
         height: calc(100vh - 16px) !important;
         max-width: 100vw !important;
         max-height: 100vh !important;
         border-radius: 14px !important;
       }
-      #n8n-chat .chat-message{
+      
+      #n8n-chat .chat-message {
         max-width: 90% !important;
         font-size: 14px !important;
         line-height: 1.5 !important;
       }
-      .cf-option{
-        width:80%;
-        min-width:0;
-        max-width:none;
-        min-height:74px;
+      
+      .cf-option {
+        width: 80%;
+        min-width: 0;
+        max-width: none;
+        min-height: 74px;
       }
     }
   </style>
@@ -303,32 +345,68 @@
 
     const WEBHOOK_BASE = "https://seidel1502.app.n8n.cloud/webhook/conar-chat";
 
+    // URL mit Mode-Parameter bauen
     const buildWebhookUrl = (mode) => {
-      const hasQ = WEBHOOK_BASE.includes("?");
-      return WEBHOOK_BASE + (hasQ ? "&" : "?") + "mode=" + encodeURIComponent(mode);
+      const separator = WEBHOOK_BASE.includes("?") ? "&" : "?";
+      return `${WEBHOOK_BASE}${separator}mode=${encodeURIComponent(mode)}`;
     };
 
-    // Welcome in spezifischen Chats (Info/Jason/Elina)
-    const initialFor = (mode) => {
-      if (mode === "info")  return "ℹ️ Hi! Ich gebe dir folgende Infos zu Conar Friseur 😊\n - Öffnungszeiten\n - Leistungen & Haarschnitte\n - Unseren Friseure \n - Terminbuchung";
-      if (mode === "jason") return "✂️ Hi, ich bin Jason 😊\nSag mir einfach:\n - das gewünschte Datum\n - deine bevorzugte Uhrzeit\n - Deinen Namen ";
-      return "✂️ Hi, ich bin Elina 😊\nSag mir einfach:\n - das gewünschte Datum\n - deine bevorzugte Uhrzeit\n - Deinen Namen ";
+    // Willkommensnachrichten für jeden Mode
+    const getInitialMessage = (mode) => {
+      const messages = {
+        info: "ℹ️ Hi! Ich gebe dir folgende Infos zu Conar Friseur 😊\n• Öffnungszeiten\n• Leistungen & Haarschnitte\n• Unsere Friseure\n• Terminbuchung",
+        jason: "✂️ Hi, ich bin Jason 😊\nSag mir einfach:\n• das gewünschte Datum\n• deine bevorzugte Uhrzeit\n• deinen Namen",
+        elina: "✂️ Hi, ich bin Elina 😊\nSag mir einfach:\n• das gewünschte Datum\n• deine bevorzugte Uhrzeit\n• deinen Namen"
+      };
+      return messages[mode] || messages.elina;
+    };
+
+    // Text bereinigen - entfernt Anführungszeichen und JSON-Reste
+    const cleanResponse = (text) => {
+      if (!text) return "";
+      
+      let cleaned = String(text);
+      
+      // Falls JSON-String, versuche zu parsen
+      if (cleaned.startsWith("{") || cleaned.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(cleaned);
+          cleaned = parsed.reply || parsed.output || parsed.text || parsed.message || cleaned;
+        } catch (e) {
+          // Kein valides JSON, weiter mit Original
+        }
+      }
+      
+      // Anführungszeichen am Anfang/Ende entfernen (mehrfach)
+      while (cleaned.startsWith('"') || cleaned.startsWith("'") || cleaned.startsWith("`")) {
+        cleaned = cleaned.slice(1);
+      }
+      while (cleaned.endsWith('"') || cleaned.endsWith("'") || cleaned.endsWith("`")) {
+        cleaned = cleaned.slice(0, -1);
+      }
+      
+      return cleaned.trim();
     };
 
     let currentMode = null;
     let reopenAfterInit = false;
 
+    // Chat zerstören
     const destroyChat = () => {
       const root = document.getElementById("n8n-chat");
       if (root) root.remove();
     };
 
+    // Chat-Fenster öffnen
     const forceOpenWindow = () => {
       const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
       const win = document.querySelector("#n8n-chat .chat-window");
-      if (toggle && (!win || win.offsetParent === null)) toggle.click();
+      if (toggle && (!win || win.offsetParent === null)) {
+        toggle.click();
+      }
     };
 
+    // Chat initialisieren
     const initChat = (modeOrNull) => {
       destroyChat();
 
@@ -340,44 +418,24 @@
         chatInputKey: "chatInput",
         chatInputPlaceholder: "Nachricht schreiben…",
         showWelcomeScreen: false,
-
-        // Menü hat KEINE initialMessage; spezifische Chats haben Welcome
-        initialMessages: modeOrNull ? [ initialFor(modeOrNull) ] : [],
-
-        // Antwort-Parsing: Extrahiere nur den "reply" Wert aus der JSON-Response
-        messageParser: (response) => {
-          // Falls response bereits ein String ist
-          if (typeof response === "string") {
-            try {
-              const parsed = JSON.parse(response);
-              return parsed.reply || parsed.output || response;
-            } catch {
-              return response;
-            }
-          }
-          // Falls response ein Objekt ist
-          if (response && typeof response === "object") {
-            return response.reply || response.output || JSON.stringify(response);
-          }
-          return String(response);
-        },
+        initialMessages: modeOrNull ? [getInitialMessage(modeOrNull)] : [],
       });
 
       attachOverlay(modeOrNull);
 
       if (reopenAfterInit) {
         reopenAfterInit = false;
-
         let tries = 0;
-        const t = setInterval(() => {
+        const interval = setInterval(() => {
           tries++;
           const toggle = document.querySelector("#n8n-chat .chat-window-toggle");
           if (toggle) forceOpenWindow();
-          if (toggle || tries >= 15) clearInterval(t);
+          if (toggle || tries >= 15) clearInterval(interval);
         }, 50);
       }
     };
 
+    // Overlay für Menü anhängen
     const attachOverlay = (modeOrNull) => {
       const tryAttach = () => {
         const win = document.querySelector("#n8n-chat .chat-window");
@@ -386,12 +444,12 @@
 
         if (!win || !body || !input) return false;
 
-        // Back
+        // Back Button
         let back = win.querySelector(".cf-back");
         if (!back) {
           back = document.createElement("div");
           back.className = "cf-back";
-          back.title = "Zurück";
+          back.title = "Zurück zum Menü";
           back.addEventListener("click", () => {
             currentMode = null;
             reopenAfterInit = true;
@@ -400,7 +458,7 @@
           win.appendChild(back);
         }
 
-        // Overlay
+        // Overlay Menü
         let overlay = win.querySelector(".cf-overlay");
         if (!overlay) {
           overlay = document.createElement("div");
@@ -408,11 +466,14 @@
 
           overlay.innerHTML = `
             <div class="cf-welcome">👋 Willkommen bei Conar Friseur 💈
-\nhier kannst du:\n - Infos zu unserem Salon bekommen💁\n - Termine buchen📆</div>
+
+Hier kannst du:
+• Infos zu unserem Salon bekommen 💁
+• Termine buchen 📆</div>
             <div class="cf-options">
-              <div class="cf-option" data-mode="info">ℹ️ Info</div>
-              <div class="cf-option" data-mode="jason">✂️ Jason</div>
-              <div class="cf-option" data-mode="elina">✂️ Elina</div>
+              <div class="cf-option" data-mode="info">ℹ️ Infos zum Salon</div>
+              <div class="cf-option" data-mode="jason">✂️ Termin bei Jason</div>
+              <div class="cf-option" data-mode="elina">✂️ Termin bei Elina</div>
             </div>
           `;
 
@@ -421,11 +482,10 @@
               e.preventDefault();
               e.stopPropagation();
 
-              const m = btn.getAttribute("data-mode");
-              currentMode = m;
-
+              const mode = btn.getAttribute("data-mode");
+              currentMode = mode;
               reopenAfterInit = true;
-              initChat(m);
+              initChat(mode);
             });
           });
 
@@ -433,14 +493,11 @@
         }
 
         const inMenu = !modeOrNull;
-
-        // Input im Menü ausblenden via Klasse
         const root = document.getElementById("n8n-chat");
+        
         root?.classList.toggle("cf-menu-open", inMenu);
-
         overlay.classList.toggle("is-open", inMenu);
         back.classList.toggle("is-open", !inMenu);
-
         overlay.style.pointerEvents = inMenu ? "auto" : "none";
 
         return true;
@@ -448,10 +505,10 @@
 
       if (tryAttach()) return;
 
-      const obs = new MutationObserver(() => {
-        if (tryAttach()) obs.disconnect();
+      const observer = new MutationObserver(() => {
+        if (tryAttach()) observer.disconnect();
       });
-      obs.observe(document.documentElement, { childList:true, subtree:true });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
     };
 
     // Start im Menü
