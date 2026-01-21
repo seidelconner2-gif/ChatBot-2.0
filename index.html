@@ -133,29 +133,47 @@
     /* =========================
        INPUT FIX: Horizontal Layout
        ========================= */
+    #n8n-chat .chat-input,
+    #n8n-chat .chat-input form,
+    #n8n-chat .chat-input > div,
+    #n8n-chat .chat-input > form > div {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+    }
+
     #n8n-chat .chat-input {
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
       border-top: 1px solid var(--chat-border) !important;
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
+      padding: 10px 12px !important;
       gap: 10px !important;
-      padding: 12px 14px !important;
+    }
+
+    #n8n-chat .chat-input form {
+      width: 100% !important;
+      gap: 10px !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     #n8n-chat .chat-input textarea,
-    #n8n-chat .chat-input input {
-      flex: 1 !important;
-      background: transparent !important;
+    #n8n-chat .chat-input input[type="text"] {
+      flex: 1 1 auto !important;
+      width: auto !important;
+      min-width: 0 !important;
+      background: rgba(255,255,255,0.05) !important;
       color: var(--text) !important;
-      border: none !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 8px !important;
       outline: none !important;
-      min-height: 20px !important;
+      min-height: 40px !important;
       max-height: 80px !important;
-      padding: 8px 0 !important;
+      padding: 10px 12px !important;
       font-size: 14px !important;
       resize: none !important;
+      margin: 0 !important;
     }
 
     #n8n-chat .chat-input textarea::placeholder,
@@ -164,27 +182,32 @@
     }
 
     /* Send Button - kompakt rechts */
-    #n8n-chat .chat-input-send-button {
-      background: transparent !important;
+    #n8n-chat .chat-input button,
+    #n8n-chat .chat-input-send-button,
+    #n8n-chat .chat-input button[type="submit"] {
+      flex: 0 0 auto !important;
+      order: 2 !important;
+      background: rgba(255,255,255,0.1) !important;
       border: 1px solid rgba(255,255,255,.25) !important;
       border-radius: 8px !important;
-      width: 36px !important;
-      height: 36px !important;
-      min-width: 36px !important;
-      min-height: 36px !important;
-      max-width: 36px !important;
-      max-height: 36px !important;
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      min-height: 40px !important;
+      max-width: 40px !important;
+      max-height: 40px !important;
       padding: 0 !important;
+      margin: 0 !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      flex-shrink: 0 !important;
       cursor: pointer !important;
     }
 
+    #n8n-chat .chat-input button svg,
     #n8n-chat .chat-input-send-button svg {
-      width: 16px !important;
-      height: 16px !important;
+      width: 18px !important;
+      height: 18px !important;
       fill: #fff !important;
       stroke: #fff !important;
     }
@@ -402,43 +425,70 @@
     };
 
     // =============================
-    // FIX: Gänsefüßchen entfernen
+    // FIX: JSON parsen + Gänsefüßchen entfernen
     // =============================
-    const stripQuotes = (text) => {
+    const cleanBotMessage = (text) => {
       if (typeof text !== 'string') return text;
-      // Entfernt führende und abschließende Anführungszeichen
-      return text.replace(/^["„"']|["„"']$/g, '').trim();
+      
+      let cleaned = text.trim();
+      
+      // Versuche JSON zu parsen wenn es wie JSON aussieht
+      if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(cleaned);
+          if (parsed.reply) {
+            cleaned = parsed.reply;
+          } else if (parsed.output) {
+            cleaned = parsed.output;
+          } else if (parsed.text) {
+            cleaned = parsed.text;
+          } else if (parsed.message) {
+            cleaned = parsed.message;
+          }
+        } catch (e) {
+          // Kein valides JSON, manuell extrahieren
+          const replyMatch = cleaned.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          if (replyMatch) {
+            cleaned = replyMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
+          }
+        }
+      }
+      
+      // Entferne führende/abschließende Anführungszeichen
+      cleaned = cleaned.replace(/^["„"']+|["„"']+$/g, '').trim();
+      
+      return cleaned;
     };
 
-    const cleanMessageQuotes = () => {
+    const processMessages = () => {
       const messages = document.querySelectorAll('#n8n-chat .chat-message--bot');
       messages.forEach(msg => {
-        const textNodes = [];
-        const walker = document.createTreeWalker(msg, NodeFilter.SHOW_TEXT, null, false);
-        let node;
-        while (node = walker.nextNode()) {
-          textNodes.push(node);
+        // Prüfe ob schon verarbeitet
+        if (msg.dataset.cleaned === 'true') return;
+        
+        const textContainer = msg.querySelector('.chat-message-text') || msg;
+        const originalText = textContainer.textContent || textContainer.innerText;
+        const cleanedText = cleanBotMessage(originalText);
+        
+        if (cleanedText !== originalText) {
+          textContainer.textContent = cleanedText;
         }
-        textNodes.forEach(textNode => {
-          const cleaned = stripQuotes(textNode.textContent);
-          if (cleaned !== textNode.textContent) {
-            textNode.textContent = cleaned;
-          }
-        });
+        
+        msg.dataset.cleaned = 'true';
       });
     };
 
     // Observer für neue Nachrichten
-    const startQuoteObserver = () => {
+    const startMessageObserver = () => {
       const observer = new MutationObserver(() => {
-        cleanMessageQuotes();
+        processMessages();
       });
       
       const tryObserve = () => {
-        const chatBody = document.querySelector('#n8n-chat .chat-body');
+        const chatBody = document.querySelector('#n8n-chat .chat-body, #n8n-chat .chat-messages');
         if (chatBody) {
           observer.observe(chatBody, { childList: true, subtree: true, characterData: true });
-          cleanMessageQuotes(); // Initial clean
+          processMessages(); // Initial clean
           return true;
         }
         return false;
@@ -456,21 +506,21 @@
     // FIX: Placeholder überschreiben
     // =============================
     const fixPlaceholder = () => {
-      const input = document.querySelector('#n8n-chat .chat-input textarea, #n8n-chat .chat-input input');
-      if (input) {
-        input.placeholder = 'Nachricht schreiben…';
-        return true;
-      }
-      return false;
+      const inputs = document.querySelectorAll('#n8n-chat .chat-input textarea, #n8n-chat .chat-input input[type="text"]');
+      inputs.forEach(input => {
+        if (input.placeholder !== 'Nachricht schreiben…') {
+          input.placeholder = 'Nachricht schreiben…';
+        }
+      });
+      return inputs.length > 0;
     };
 
     const startPlaceholderFix = () => {
-      if (!fixPlaceholder()) {
-        const observer = new MutationObserver(() => {
-          if (fixPlaceholder()) observer.disconnect();
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-      }
+      // Wiederhole alle 500ms um sicherzustellen dass es bleibt
+      setInterval(fixPlaceholder, 500);
+      
+      const observer = new MutationObserver(fixPlaceholder);
+      observer.observe(document.body, { childList: true, subtree: true });
     };
 
     const initChat = (modeOrNull) => {
@@ -491,8 +541,10 @@
       attachOverlay(modeOrNull);
       
       // Starte Fixes
-      startQuoteObserver();
-      startPlaceholderFix();
+      setTimeout(() => {
+        startMessageObserver();
+        startPlaceholderFix();
+      }, 100);
 
       if (reopenAfterInit) {
         reopenAfterInit = false;
