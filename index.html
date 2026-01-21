@@ -130,19 +130,32 @@
       line-height: 1.45 !important;
     }
 
-    /* Input */
+    /* =========================
+       INPUT FIX: Horizontal Layout
+       ========================= */
     #n8n-chat .chat-input {
       background: var(--input-bg) !important;
       background-color: var(--input-bg) !important;
       border-top: 1px solid var(--chat-border) !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 12px 14px !important;
     }
 
     #n8n-chat .chat-input textarea,
     #n8n-chat .chat-input input {
+      flex: 1 !important;
       background: transparent !important;
       color: var(--text) !important;
       border: none !important;
       outline: none !important;
+      min-height: 20px !important;
+      max-height: 80px !important;
+      padding: 8px 0 !important;
+      font-size: 14px !important;
+      resize: none !important;
     }
 
     #n8n-chat .chat-input textarea::placeholder,
@@ -150,15 +163,28 @@
       color: var(--muted) !important;
     }
 
-    /* Send Button */
+    /* Send Button - kompakt rechts */
     #n8n-chat .chat-input-send-button {
       background: transparent !important;
       border: 1px solid rgba(255,255,255,.25) !important;
-      border-radius: 10px !important;
+      border-radius: 8px !important;
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
+      max-width: 36px !important;
+      max-height: 36px !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      cursor: pointer !important;
     }
 
-    #n8n-chat .chat-input-send-button svg,
-    #n8n-chat .chat-input-send-button svg * {
+    #n8n-chat .chat-input-send-button svg {
+      width: 16px !important;
+      height: 16px !important;
       fill: #fff !important;
       stroke: #fff !important;
     }
@@ -375,6 +401,78 @@
       }
     };
 
+    // =============================
+    // FIX: Gänsefüßchen entfernen
+    // =============================
+    const stripQuotes = (text) => {
+      if (typeof text !== 'string') return text;
+      // Entfernt führende und abschließende Anführungszeichen
+      return text.replace(/^["„"']|["„"']$/g, '').trim();
+    };
+
+    const cleanMessageQuotes = () => {
+      const messages = document.querySelectorAll('#n8n-chat .chat-message--bot');
+      messages.forEach(msg => {
+        const textNodes = [];
+        const walker = document.createTreeWalker(msg, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while (node = walker.nextNode()) {
+          textNodes.push(node);
+        }
+        textNodes.forEach(textNode => {
+          const cleaned = stripQuotes(textNode.textContent);
+          if (cleaned !== textNode.textContent) {
+            textNode.textContent = cleaned;
+          }
+        });
+      });
+    };
+
+    // Observer für neue Nachrichten
+    const startQuoteObserver = () => {
+      const observer = new MutationObserver(() => {
+        cleanMessageQuotes();
+      });
+      
+      const tryObserve = () => {
+        const chatBody = document.querySelector('#n8n-chat .chat-body');
+        if (chatBody) {
+          observer.observe(chatBody, { childList: true, subtree: true, characterData: true });
+          cleanMessageQuotes(); // Initial clean
+          return true;
+        }
+        return false;
+      };
+
+      if (!tryObserve()) {
+        const initObserver = new MutationObserver(() => {
+          if (tryObserve()) initObserver.disconnect();
+        });
+        initObserver.observe(document.body, { childList: true, subtree: true });
+      }
+    };
+
+    // =============================
+    // FIX: Placeholder überschreiben
+    // =============================
+    const fixPlaceholder = () => {
+      const input = document.querySelector('#n8n-chat .chat-input textarea, #n8n-chat .chat-input input');
+      if (input) {
+        input.placeholder = 'Nachricht schreiben…';
+        return true;
+      }
+      return false;
+    };
+
+    const startPlaceholderFix = () => {
+      if (!fixPlaceholder()) {
+        const observer = new MutationObserver(() => {
+          if (fixPlaceholder()) observer.disconnect();
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+    };
+
     const initChat = (modeOrNull) => {
       destroyChat();
 
@@ -383,20 +481,18 @@
       createChat({
         webhookUrl,
         mode: "window",
-
-        // INPUT: was du schon korrekt hast
         chatInputKey: "chatInput",
         chatInputPlaceholder: "Nachricht schreiben…",
-
-        // OUTPUT: DAS war der zentrale Fix
-        // -> Widget rendert dann reply direkt und muss nichts stringify'en
         chatOutputKey: "reply",
-
         showWelcomeScreen: false,
         initialMessages: modeOrNull ? [getInitialMessage(modeOrNull)] : [],
       });
 
       attachOverlay(modeOrNull);
+      
+      // Starte Fixes
+      startQuoteObserver();
+      startPlaceholderFix();
 
       if (reopenAfterInit) {
         reopenAfterInit = false;
